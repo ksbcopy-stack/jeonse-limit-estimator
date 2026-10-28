@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>전세자금 대출 상담 한도 추정</title>
+<style>[hidden]{display:none!important}img{max-width:100%}html{-webkit-text-size-adjust:100%}</style>
+</head>
+<body><style>
+/* Layout: input form on top (2-col grid), result summary + per-product table below, rules/disclaimer last */
+@font-face{font-family:"HanaL";font-weight:300;src:local("HanaL"),local("Hana L"),local("하나L"),local("Hana2.0 L");}
+@font-face{font-family:"HanaM";font-weight:500;src:local("HanaM"),local("Hana M"),local("하나M"),local("Hana2.0 M");}
+:root{
+  --bg:#f3f7f6; --surface:#fff; --fg:#14292a; --muted:#566b6b; --line:#d3e1df;
+  --teal:#00857f; --teal-soft:#dff1ef; --coral:#c63a30; --coral-soft:#fde8e5; --amber-soft:#fff3d6; --amber:#8a5a00;
+  --font-l:"HanaL","Hana2.0 L","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif; --font-m:"HanaM","Hana2.0 M","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",sans-serif; --on-teal:#fff;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1c1c; --surface:#16292a; --fg:#e6f2f0; --muted:#9bb3b0; --line:#2a4344;
+  --teal:#3cc6bd; --teal-soft:#17393a; --coral:#ff8b80; --coral-soft:#3d2321; --amber-soft:#3a2e12; --amber:#f0c36a; --on-teal:#062321; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1c1c; --surface:#16292a; --fg:#e6f2f0; --muted:#9bb3b0; --line:#2a4344;
+  --teal:#3cc6bd; --teal-soft:#17393a; --coral:#ff8b80; --coral-soft:#3d2321; --amber-soft:#3a2e12; --amber:#f0c36a; --on-teal:#062321; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-l);font-weight:300;line-height:1.6;padding:28px 16px 48px;
+  padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3,b,th,label,button,.m{font-family:var(--font-m);font-weight:500}
+h1{font-size:clamp(24px,5vw,32px);margin:0;line-height:1.3}
+h2{font-size:19px;margin:0 0 12px}
+.sub{color:var(--muted);margin:6px 0 0}
+.banner{background:var(--amber-soft);color:var(--amber);border-radius:10px;padding:10px 14px;font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px 18px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+label{font-size:14px}
+input,select{font:inherit;font-family:var(--font-l);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+input[aria-invalid="true"]{border-color:var(--coral)}
+.err{color:var(--coral);font-size:13px;min-height:1em;margin:0}
+.hint{color:var(--muted);font-size:12.5px;margin:0}
+button.go{grid-column:1/-1;background:var(--teal);color:var(--on-teal);border:0;border-radius:10px;min-height:50px;font-size:16px;cursor:pointer}
+button.go:hover{filter:brightness(1.06)}
+.summary{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.best{flex:1 1 260px;background:var(--teal-soft);border-radius:12px;padding:14px 16px}
+.best small{color:var(--muted);display:block}
+.best .big{font-family:var(--font-m);font-size:26px;color:var(--teal)}
+.none{background:var(--coral-soft);color:var(--coral)}
+.none .big{color:var(--coral)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:6px}
+.card{-webkit-appearance:none;appearance:none;margin:0;width:100%;font:inherit;color:inherit;text-align:left;box-sizing:border-box;cursor:pointer;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card:hover{border-color:var(--teal)}
+.card:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.card[aria-pressed="true"]{border-color:var(--teal);background:var(--teal-soft)}
+.card.ineligible{border-style:dashed}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card .nm{font-family:var(--font-m);font-size:16px;line-height:1.35}
+.card .gr{color:var(--muted);font-size:12.5px}
+.card .lim{font-family:var(--font-m);font-size:22px;font-variant-numeric:tabular-nums}
+.card.ineligible .lim{color:var(--muted)}
+.card .more{color:var(--teal);font-size:12.5px;font-family:var(--font-m)}
+.detail{margin-top:14px;border:1.5px solid var(--teal);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.detail h3{margin:0;font-size:17px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.detail h4{margin:0 0 4px;font-family:var(--font-m);font-weight:500;font-size:13px;color:var(--muted);letter-spacing:.04em}
+.detail ul{margin:0;padding-left:18px}
+#docsBox{border-top:1px dashed var(--line);padding-top:12px}
+#docsBox>h4{font-size:15px;color:var(--fg)}
+.dchk{display:inline-flex;align-items:center;gap:6px;font-size:14px;min-height:40px;cursor:pointer}
+.dgroup{margin:10px 0 4px}
+.dgroup h5{margin:0 0 6px;font-family:var(--font-m);font-weight:500;font-size:13.5px;color:var(--teal)}
+.drow{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:6px;background:var(--bg)}
+.drow.hit{border-color:var(--amber);background:var(--amber-soft)}
+.dtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dname{font-size:14.5px;min-width:0;overflow-wrap:anywhere}
+.dmeta{color:var(--muted);font-size:12.5px;margin-top:2px;overflow-wrap:anywhere}
+.dhit{color:var(--amber);font-size:12.5px;margin-top:3px;font-family:var(--font-m)}
+.sbtn[aria-pressed="true"]{background:var(--teal);color:var(--on-teal)}
+@supports not (display:contents){.dtop>*+*{margin-left:10px}}
+@media print{.sheet td{font-size:11px}}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 6px}
+.toolbar .hint{margin:0;flex:1 1 280px}
+.sbtn{font-family:var(--font-m);font-size:14px;background:var(--surface);color:var(--teal);border:1.5px solid var(--teal);border-radius:8px;min-height:40px;padding:0 14px;cursor:pointer}
+.sbtn:hover{background:var(--teal-soft)}
+.sbtn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.copyfb{width:100%;min-height:150px;margin-top:8px;font:inherit;font-size:13px}
+.printonly{display:none}
+form,.cards{grid-gap:14px 18px}
+.cards{grid-gap:12px}
+/* 구형 Edge(EdgeHTML)용 대체 간격: flex gap 미지원, display:contents 미지원 브라우저에만 적용 */
+@supports not (display:contents){
+  .wrap>*+*{margin-top:22px}
+  .field>*+*,.card>*+*{margin-top:6px}
+  .detail>*+*{margin-top:12px}
+  .summary>*{margin:0 12px 12px 0}
+  .toolbar>*{margin:0 10px 6px 0}
+  .card .top>*+*{margin-left:8px}
+  .detail h3>*{margin-right:8px}
+}
+.sheet h2{font-size:20px;margin:0 0 4px}
+.sheet table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 12px}
+.sheet th,.sheet td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.sheet th{background:var(--bg);font-size:12.5px}
+.sheet ul{margin:0;padding-left:16px}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--fg:#000;--muted:#333;--line:#999;--teal:#005f5a;--teal-soft:#fff;--coral:#9b1c14;--coral-soft:#fff;--amber-soft:#fff;--amber:#5c3b00;color-scheme:light}
+  body{background:#fff;color:#000;padding:0}
+  .noprint{display:none!important}
+  .printonly{display:block!important}
+  .panel{border:0;padding:0}
+  .banner{border:1px solid #999}
+  tr{break-inside:avoid}
+}
+.pill{display:inline-block;border-radius:99px;padding:2px 10px;font-family:var(--font-m);font-size:13px}
+.ok{background:var(--teal-soft);color:var(--teal)}
+.no{background:var(--coral-soft);color:var(--coral)}
+.warn{background:var(--amber-soft);color:var(--amber)}
+.warnli{color:var(--amber)}
+.calc{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.empty{text-align:center;color:var(--muted);padding:24px;grid-column:1/-1;margin:0}
+.disc{font-size:13.5px;color:var(--muted)}
+details summary{cursor:pointer;font-family:var(--font-m)}
+details ul{color:var(--muted);font-size:14px;padding-left:18px}
+</style>
+
+<div class="wrap">
+  <div id="scriptWarn" class="banner" role="alert" hidden><b>이 브라우저에서는 조회 기능이 동작하지 않습니다.</b> 최신 Microsoft Edge(Chromium 기반) 또는 Chrome으로 열어 주세요. 스크립트가 차단된 경우 파일을 저장한 뒤 속성에서 "차단 해제"를 확인하세요.</div>
+  <header>
+    <h1>전세자금 대출 상담 한도 추정</h1>
+    <p class="sub">손님 정보를 입력하면 상품별 예상 적격 여부와 예상 한도를 보여줍니다.</p>
+  </header>
+  <div class="banner" role="note"><b id="asOf">기준값 확인 필요.</b> 상품 기준은 전달받은 정리 자료를 그대로 옮긴 것이며, 은행 공시 원문과 대조하지 않았습니다. 상담에 쓰기 전에 기준표(코드 상단의 <code>PRODUCTS</code>, <code>TYPES</code>)를 확인하세요.</div>
+
+  <section class="panel noprint" aria-labelledby="t-in">
+    <h2 id="t-in">손님 정보</h2>
+    <form id="form" novalidate>
+      <div class="field"><label for="custName">손님 성명 (화면 표시용)</label>
+        <input type="text" id="custName" value="홍길동" autocomplete="off"><p class="hint">판정에는 쓰이지 않고 저장·전송하지 않습니다.</p></div>
+      <div class="field"><label for="housingStatus">주택 보유 수</label>
+        <select id="housingStatus"><option value="무주택" selected>무주택</option><option value="1주택">1주택</option><option value="2주택이상">2주택 이상</option></select></div>
+      <div class="field"><label for="maritalStatus">혼인 상태</label>
+        <select id="maritalStatus"><option value="신혼부부" selected>신혼부부 (혼인신고 7년 이내)</option><option value="예비신혼">예비신혼 (3개월 이내 결혼예정)</option><option value="일반">일반 혼인가구</option><option value="미혼">미혼</option></select></div>
+      <div class="field"><label for="newbornStatus">2년 이내 출산·입양</label>
+        <select id="newbornStatus"><option value="예" selected>예 (출생·입양 2년 이내 자녀 있음)</option><option value="아니오">아니오</option></select></div>
+      <div class="field"><label for="annualIncome">부부합산 연소득 (만원)</label>
+        <input type="text" id="annualIncome" value="6,000" data-money inputmode="numeric" autocomplete="off"><p class="err" id="e-annualIncome"></p></div>
+      <div class="field"><label for="netAssets">부부합산 순자산 (만원)</label>
+        <input type="text" id="netAssets" value="30,000" data-money inputmode="numeric" autocomplete="off"><p class="err" id="e-netAssets"></p></div>
+      <div class="field"><label for="region">임차주택 소재지</label>
+        <select id="region"><option value="수도권" selected>수도권 (서울·경기·인천)</option><option value="지방">지방</option></select></div>
+      <div class="field"><label for="jeonseDeposit">임차 보증금 (만원)</label>
+        <input type="text" id="jeonseDeposit" value="40,000" data-money inputmode="numeric" autocomplete="off"><p class="err" id="e-jeonseDeposit"></p></div>
+      <div class="field"><label for="youth">청년가구 해당 여부</label>
+        <select id="youth"><option value="아니오" selected>해당 없음</option><option value="예">해당 (전세금안심 청년 우대)</option></select></div>
+      <div class="field" id="f-restricted"><label for="restricted">보유 주택이 규제지역 3억 초과 아파트</label>
+        <select id="restricted"><option value="아니오" selected>아니오</option><option value="예">예</option></select><p class="hint">투기지역·투기과열지구 소재 시가 3억원 초과 아파트(지정 이후 취득)를 보유한 경우 '예'. 1주택 보유 시에만 확인합니다.</p></div>
+      <div class="field"><label for="houseType">임차주택 유형</label>
+        <select id="houseType"><option value="아파트" selected>아파트</option><option value="연립다세대">연립·다세대(빌라)</option><option value="오피스텔">주거용 오피스텔</option><option value="단독다가구">단독·다가구</option><option value="미등기">미등기 주택(신규 분양 입주 등)</option></select></div>
+      <div class="field"><label for="area">전용면적 (㎡)</label>
+        <input type="number" id="area" value="84" min="1" step="0.1" inputmode="decimal"><p class="err" id="e-area"></p></div>
+      <div class="field"><label for="eupmyeon">읍·면 지역 여부</label>
+        <select id="eupmyeon"><option value="아니오" selected>아니오 (동 지역)</option><option value="예">예 (읍·면 지역)</option></select></div>
+      <div class="field" id="f-resid"><label for="residential">주거용 사용·전입신고 가능</label>
+        <select id="residential"><option value="예" selected>예 (건축물대장 주거용, 전입 가능)</option><option value="아니오">아니오 (근린생활시설·사무용 등)</option></select><p class="hint">오피스텔을 선택했을 때 확인합니다.</p></div>
+      <div class="field"><label for="priceType">주택 기준가격 종류 (선택)</label>
+        <select id="priceType"><option value="" selected>입력 안 함</option><option value="KB시세">KB시세</option><option value="한국부동산원 시세">한국부동산원 시세</option><option value="감정가">감정가</option><option value="공시가격">공시가격 (시세 없을 때, ×140% 환산)</option></select></div>
+      <div class="field"><label for="refPrice">주택 기준가격 (만원, 선택)</label>
+        <input type="text" id="refPrice" data-money inputmode="numeric" autocomplete="off" placeholder="예: 40,000"><p class="err" id="e-refPrice"></p><p class="hint">전세금안심의 담보 한도(주택가액 90% − 선순위채권) 참고 계산에 사용합니다. 시세는 영업점에서 조회한 값을 입력하세요.</p></div>
+      <div class="field"><label for="seniorDebt">선순위 채권·타 임차보증금 (만원, 선택)</label>
+        <input type="text" id="seniorDebt" data-money inputmode="numeric" autocomplete="off" placeholder="예: 5,000"><p class="err" id="e-seniorDebt"></p><p class="hint">근저당과 다가구의 선순위 타 임차보증금 합계입니다.</p></div>
+      <button type="submit" class="go">상품별 예상 적격 여부·한도 조회</button>
+    </form>
+  </section>
+
+  <section class="panel noprint" aria-labelledby="t-out">
+    <h2 id="t-out">상품별 예상 적격 여부와 예상 한도</h2>
+    <div id="summary" class="summary" aria-live="polite"></div>
+    <div class="toolbar">
+      <p class="hint" id="cardHint">입력 정보 기준 예상 결과입니다. 상품 카드를 누르면 특이사항이 아래에 표시됩니다.</p>
+      <button type="button" class="sbtn" id="copyBtn" hidden>결과 복사</button>
+      <span class="hint" id="copyMsg" role="status"></span>
+    </div>
+    <p class="hint" id="printHint" hidden>인쇄하려면 브라우저의 인쇄 기능(Ctrl+P, Mac은 Cmd+P)을 사용하세요. 상담 결과지 형식으로 출력됩니다. 인쇄가 되지 않으면 [결과 복사] 후 문서에 붙여넣어 인쇄하세요.</p>
+    <textarea id="copyFb" class="copyfb" readonly hidden aria-label="복사할 결과 내용"></textarea>
+    <div id="cards" class="cards" role="group" aria-label="상품 카드"><p class="empty">정보를 입력하고 조회 버튼을 누르세요.</p></div>
+    <div id="detail" class="detail" aria-live="polite" hidden></div>
+  </section>
+
+  <section class="panel printonly sheet" id="printSheet" aria-label="상담 결과지"></section>
+  <section class="panel printonly sheet" id="docsPrint" aria-label="징구 서류 목록"></section>
+
+  <section class="panel disc">
+    <p style="margin-top:0"><b>안내.</b> 본 판정 결과는 입력하신 기초 정보(소득, 자산, 주택수 등)를 바탕으로 계산된 예상 결과입니다. 실제 대출 가능 여부, 최종 한도와 금리는 임차목적물의 권리침해 여부(근저당 설정 등), 건물 시세 감정, 개인신용평점(CSS), 보증기관(HF·HUG·SGI)의 최종 승인 결과에 따라 달라질 수 있습니다.</p>
+    <details class="noprint"><summary>적용한 판정 규칙</summary>
+      <ul>
+        <li>최종 한도 = MIN(보증금 연동 한도, 소득 연동 한도(해당 상품만), 상품 최대 한도)</li>
+        <li>부적격 사유는 주택 보유 수, 신혼·신생아 자격, 소득·순자산 상한, 보증금 상한, 주택 요건(면적·유형) 순으로 모두 표시</li>
+        <li>주택 유형: 미등기는 HUG·SGI 불가, 버팀목 계열 미등기는 영업점 확인(조건부), 단독·다가구는 버팀목 계열 가능, HF·HUG·SGI는 선순위 임차보증금 확인 필요, 주거용 전입 불가 오피스텔은 전 상품 불가</li>
+        <li>전세금안심 담보 한도(참고 계산): 주택 기준가격으로 주택가액을 정하고(시세·감정가는 그대로, 공시가격은 ×140%), 주택가액 × 90% − 선순위 채권을 한도에 반영. 선순위가 주택가액의 60%를 넘거나 보증금+선순위가 90%를 넘으면 경고. 시세 종류와 비율은 하나은행 업무 기준 확인 필요</li>
+        <li>우량주택전세론: 단독·다가구 불가</li>
+        <li>1주택자 한도: 주택신보 수도권 2억원·지방 2.22억원, 전세금안심 전 지역 2억원, 우량주택전세론 수도권 2억원·지방 3억원(보증금 60% 이내). 수도권 1주택은 DSR 40% 안내 표시</li>
+        <li>전세금안심 한도: 일반 수도권 4억원·지방 3.2억원, 신혼·청년가구 수도권 4.5억원·지방 3.6억원(보증금 90%)</li>
+        <li>투기지역·투기과열지구 소재 시가 3억원 초과 아파트 보유자(1주택)는 신혼부부전세론·주택신보·전세금안심·우량주택전세론 취급 불가</li>
+        <li>일반 버팀목 한도: 수도권 일반 1.2억·신혼 3억, 지방 일반 8천만원·신혼 2억</li>
+        <li>혼인 7년 이내는 혼인신고일, 신생아 2년 이내는 출생·입양일 기준 (입력 시 손님 확인 필요)</li>
+        <li>인지세: 5천만원 이하 없음, 5천만~1억원 7만원, 1억~10억원 15만원 (은행·손님 반반 부담)</li>
+        <li>DSR과 신용점수는 반영하지 않아 실제 한도가 더 낮을 수 있음</li>
+      </ul></details>
+    <details class="noprint"><summary>기준 정보 및 변경 이력</summary><div id="metaBox"></div></details>
+  </section>
+</div>
+
+<script>
+// 구형 Edge(EdgeHTML 17 미만) 대비: append()와 NodeList.forEach 보완
+if (typeof Element !== 'undefined') {
+  [Element.prototype, Document.prototype, DocumentFragment.prototype].forEach(function (p) {
+    if (!p.hasOwnProperty('append')) p.append = function () {
+      var f = document.createDocumentFragment();
+      Array.prototype.slice.call(arguments).forEach(function (n) { f.appendChild(n instanceof Node ? n : document.createTextNode(String(n))); });
+      this.appendChild(f);
+    };
+  });
+  if (window.NodeList && !NodeList.prototype.forEach) NodeList.prototype.forEach = Array.prototype.forEach;
+}
+
+// ───────── 기준 정보 (자료를 갱신할 때 가장 먼저 고치는 곳) ─────────
+// 1) META: 기준일, 자료명, 변경 이력  2) PRODUCTS: 상품별 기준값  3) TYPES: 주택 유형별 취급
+// 값을 고친 뒤에는 jeonse-tests/run-tests.js로 검증 사례를 다시 돌려 의도치 않은 변화가 없는지 확인하세요.
+const META = {
+  asOf: '2026.7',
+  verified: false, // 은행 공시 원문과 대조를 마치면 true로 바꾸세요
+  sources: [
+    '전세자금대출 주요 상품비교(26.7월).pdf (3쪽, HF·HUG·SGI 및 협약 상품)',
+    '하나은행 홈페이지 전세금안심대출 상품공시(2026.01.02 변경 기준)',
+    '조사 보고서: HF·HUG·SGI 전세보증 및 반환보증 주요 내용',
+    '가계여신, 가계대출 상품설명서, 대출거래약정서 (정리 자료 기준)',
+  ],
+  changelog: [
+    ['2026.7', '전세금안심 주택 기준가격 입력(KB시세·한국부동산원 시세·감정가·공시가격×140%)과 담보 한도(주택가액 90%−선순위) 참고 계산 추가, 공시가격 126% 입력 대체'],
+    ['2026.7', '우량주택전세론 단독·다가구 불가로 확정'],
+    ['2026.7', '비교표(26.7월)·하나은행 상품공시 대조: 주택신보 1주택 한도(지방 2.22억, 수도권 2억), 전세금안심 지방·청년 한도(지방 일반 3.2억·신혼청년 3.6억)와 1주택 전 지역 2억, 우량주택전세론 1주택 지방 3억(보증금 60%)'],
+    ['2026.7', '전세금안심·우량주택전세론에서 단독·다가구 제외, 규제지역 3억 초과 아파트 보유자 취급 불가 추가, 청년가구 입력 추가'],
+    ['2026.7', '주택 유형별 취급 조건(미등기·단독다가구·오피스텔)과 전용면적 제한 반영'],
+    ['2026.7', '전세금안심 공시가격 126% 룰을 모든 주택 유형에 적용, 신혼부부 한도 4.5억원'],
+    ['2026.7', '일반 버팀목 한도: 수도권 일반 1.2억·신혼 3억, 지방 일반 8천만원·신혼 2억'],
+    ['25.10.29', '수도권 1주택 DSR 40% 안내 표시 (기존 채무 정보는 미반영)'],
+    ['25.9.7', '1주택 수도권 한도 2억원 (우량주택전세론은 보증금 60% 이내 포함)'],
+    ['25.7.21', '수도권 보증비율 80% 안내 (한도 계산 비율에는 미반영)'],
+    ['26.1.2', '신혼부부전세론 중도상환해약금 0.59% 안내'],
+  ],
+};
+
+/* DOCS-DATA-START (build-docs.js가 생성, 직접 수정하지 마세요) */
+const DOCS_META = {"source":"상품별 징구서류 목록표_26.10.xlsx","builtAt":"2026-10-27"};
+const DOCS = {"hfjs":{"title":"주택신보 전세자금대출","sheets":{"new":{"sheet":"주신보 전세(신규)","title":"발송 목록표 [주택신보위탁발행보증서담보대출(일반)]","items":[{"no":"1","cat":"은행서양식","form":"5-06-0967","name":"적합성•적정성 고객정보 확인서 (개인 및 개인사업자용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행서양식","form":"5-06-0989","name":"확인서(계약서류 제공 확인용)","check":"","who":["본인"],"req":""},{"no":"3","cat":"은행서양식","form":"5-16-0178","name":"대출신청서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행서양식","form":"3-06-1040","name":"대출거래약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"5","cat":"은행서양식","form":"5-06-0171","name":"추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"6","cat":"은행서양식","form":"5-16-0285","name":"추가약정서(주택 취득 제한 등에 대한 전세자금대출 추가약정용)","check":"","who":["본인"],"req":"필수"},{"no":"7","cat":"은행서양식","form":"5-06-0548","name":"개인(신용)정보 조회동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"8","cat":"은행서양식","form":"5-16-0179","name":"필수 개인(신용)정보 수집.이용 및 제공동의서 (가계여신 금융거래)","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"9","cat":"은행서양식","form":"5-16-1029","name":"필수 개인(신용)정보 조회 · 수집 · 이용 동의서 [대안정보]","check":"","who":["본인"],"req":"필수"},{"no":"10","cat":"은행서양식","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"11","cat":"은행서양식","form":"5-06-0304","name":"대출금 지급 위임장","check":"","who":["본인"],"req":"필수"},{"no":"12","cat":"은행서양식","form":"5-06-0738","name":"동의서(대출비용지급용)","check":"","who":["본인"],"req":"해당시"},{"no":"13","cat":"은행서양식","form":"5-16-0180","name":"상품별 필수 개인(신용)정보 수집.이용 및 제공 동의서 (전세자금대출-주택금융보증서용)","check":"","who":["본인"],"req":"필수"},{"no":"14","cat":"은행서양식","form":"5-06-0893","name":"주택소유확인 시스템 이용관련 필수 개인(신용) 정보 수집·이용 및 제공 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"15","cat":"은행서양식","form":"5-06-0981","name":"개인(신용)정보 제3자제공 동의서 (대전광역시 청년 임차보증금 대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"16","cat":"은행서양식","form":"5-16-0270","name":"개인(신용)정보 제3자제공 동의서 (서울특별시 이차보전 협약 전월세대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"17","cat":"은행서양식","form":"5-06-1033","name":"개인(신용)정보 제3자제공 동의서 (세종특별시 청년 임차보증금 대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"18","cat":"은행서양식","form":"5-16-0368","name":"개인(신용)정보 제3자제공 동의서 (논산시 청년 임차보증금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"19","cat":"은행서양식","form":"5-16-0359","name":"개인(신용)정보 제3자제공 동의서 (충청남도 청년 임차보증금 대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"20","cat":"은행서양식","form":"5-16-0028","name":"출장복명서","check":"","who":["본인"],"req":"해당시"},{"no":"21","cat":"은행서양식","form":"5-16-0220","name":"사전고지 확인서","check":"","who":["본인"],"req":"해당시"},{"no":"21","cat":"은행서양식","form":"5-16-0373","name":"확약서(기준금리 금융채2년물 전세자금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"22","cat":"은행서양식","form":"5-06-1001","name":"전세자금대출 사고예방 Check Sheet","check":"","who":[],"req":"필수"},{"no":"23","cat":"보증기관 서양식","form":"5-16-0040","name":"신용보증신청서","check":"","who":["본인"],"req":"필수"},{"no":"24","cat":"보증기관 서양식","form":"5-16-0054","name":"신용보증약정서","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"25","cat":"보증기관 서양식","form":"5-06-0810","name":"개인(신용)정보수집이용·제공동의서 (한국주택금융공사용)","check":"","who":["본인","배우자·결혼예정자","연대보증인"],"req":"필수"},{"no":"26","cat":"보증기관 서양식","form":"5-16-0286","name":"개인(민감)정보수집·이용 동의서(선택적동의)","check":"","who":["본인"],"req":"해당시"},{"no":"27","cat":"보증기관 서양식","form":"5-16-0268","name":"실수요자 증명 확약서 (규제대상아파트 취득자)","check":"","who":["본인"],"req":"해당시"},{"no":"28","cat":"보증기관 서양식","form":"5-16-0046 5-16-0043","name":"임대차계약사실 확인서 or 임대차조사서","check":"","who":["임대인"],"req":"필수"},{"no":"29","cat":"보증기관 서양식","form":"5-06-1022","name":"질권설정ㆍ채권양도 대상자 상담용 체크리스트","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-16-0129","name":"채권양도계약서","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-16-0073","name":"채권양도통지서","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-06-1024","name":"채권양도승낙서","check":"","who":["본인","임대인 / 임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-06-1021","name":"근질권설정계약서","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-16-0047","name":"근질권설정통지서","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-16-0048","name":"근질권설정승낙서","check":"","who":["본인","임대인 / 임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-06-1023","name":"통지행위 등 위임장(주택금융공사)","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-16-0434","name":"전세보증금 반환보증 가입유무 확인서","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-16-0357","name":"채권양도(근질권) 일부 또는 전부 해지 통지서","check":"","who":["본인","임차인"],"req":"채권보전조치 해당시"},{"no":"","cat":"보증기관 서양식","form":"5-16-0042","name":"임차보증금 권리제한 유무확인서","check":"","who":["본인","임대인"],"req":"채권보전조치 해당시"},{"no":"30","cat":"보증기관 서양식","form":"5-06-0741","name":"대출금수령위임동의서","check":"","who":["본인"],"req":"해당시"},{"no":"31","cat":"보증기관 서양식","form":"5-16-0057","name":"확약서 [갱신보증용 / 신규증액(구보증서회수 조건부)용]","check":"","who":["본인"],"req":"해당시"},{"no":"32","cat":"보증기관 서양식","form":"5-16-0022","name":"확약서(주민등록 미전입자 및 결혼에정자)","check":"","who":["본인"],"req":"해당시"},{"no":"33","cat":"보증기관 서양식","form":"5-16-0303","name":"배우자 주택보유수 사실 확인서","check":"","who":["본인"],"req":"해당시"},{"no":"34","cat":"보증기관 서양식","form":"5-16-0435","name":"임대차계약 종료에 관한 확약서","check":"","who":["본인"],"req":"해당시"},{"no":"35","cat":"보증기관 서양식","form":"5-06-0811","name":"임대차계약체결 유의사항 설명서","check":"","who":["본인"],"req":"필수"},{"no":"36","cat":"차주 제출서류","form":"","name":"신분증","check":"","who":[],"req":"필수"},{"no":"37","cat":"차주 제출서류","form":"","name":"주민등록등본(보증신청일기준 1개월 이내 발급분) (분리된 배우자 있을 경우 주민등록등본 추가 징구 필수)","check":"","who":[],"req":"필수"},{"no":"38","cat":"차주 제출서류","form":"","name":"전입세대확인서","check":"","who":[],"req":"필수"},{"no":"39","cat":"차주 제출서류","form":"","name":"가족관계증명서","check":"","who":[],"req":"필수"},{"no":"40","cat":"차주 제출서류","form":"","name":"혼인관계증명서","check":"","who":[],"req":"해당시"},{"no":"41","cat":"차주 제출서류","form":"","name":"확정일자 있는 임대차계약서","check":"","who":[],"req":"필수"},{"no":"42","cat":"차주 제출서류","form":"","name":"임차보증금 5%이상 지급 영수증(무통장입금증)","check":"","who":[],"req":"필수"},{"no":"43","cat":"차주 제출서류","form":"","name":"재직증빙 입증서류","check":"","who":[],"req":"필수"},{"no":"44","cat":"차주 제출서류","form":"","name":"소득입증서류","check":"","who":[],"req":"필수"},{"no":"45","cat":"차주 제출서류","form":"","name":"현 거주주택 및 임차주택 등기부등본","check":"","who":[],"req":"필수"},{"no":"46","cat":"차주 제출서류","form":"","name":"(임시)사용승인서(또는 사용검사필증,준공검사필증)(사본), 입주안내문(사본), 분양계약서(사본), 분양대금납부확인 서류","check":"","who":[],"req":"해당시"},{"no":"47","cat":"차주 제출서류","form":"","name":"신탁계약서(사본) 및 신탁원부(사본)","check":"","who":[],"req":"해당시"},{"no":"48","cat":"차주 제출서류","form":"","name":"금융거래확인서(본인 및 배우자)","check":"","who":[],"req":"해당시"},{"no":"49","cat":"차주 제출서류","form":"","name":"보유 '규제대상 아파트' 가격 증빙자료","check":"","who":[],"req":"해당시"},{"no":"50","cat":"전산출력물","form":"","name":"대출원장조회(은행거래현황)","check":"","who":[],"req":"필수"},{"no":"51","cat":"전산출력물","form":"","name":"승인장","check":"","who":[],"req":"필수"},{"no":"52","cat":"전산출력물","form":"","name":"무주택확인","check":"","who":[],"req":"필수"},{"no":"53","cat":"전산출력물","form":"","name":"보증서","check":"","who":[],"req":"필수"},{"no":"54","cat":"전산출력물","form":"","name":"신용정보 및 기타 출력물","check":"","who":[],"req":"필수"}]},"ext":{"sheet":"주신보 전세 (연장)","title":"발송 목록표 [주택신보위탁발행보증서담보대출(일반)]","items":[{"no":"0","cat":"은행서양식","form":"5-06-0977","name":"확인서(불공정영업행위 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"1","cat":"은행서양식","form":"3-06-1093","name":"대출거래추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행서양식","form":"5-06-0171","name":"추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"3","cat":"은행서양식","form":"5-16-0285","name":"추가약정서 (주택 취득 제한 등에 대한 전세자금대출 추가약정용)","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행서양식","form":"5-06-0548","name":"개인(신용)정보 조회동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"해당시"},{"no":"5","cat":"은행서양식","form":"5-16-0179","name":"필수 개인(신용)정보 수집.이용 및 제공동의서 (가계여신 금융거래)","check":"","who":["배우자·결혼예정자"],"req":"해당시"},{"no":"6","cat":"은행서양식","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"7","cat":"은행서양식","form":"5-06-0899","name":"가계대출핵심상품설명서","check":"","who":[],"req":"필수"},{"no":"8","cat":"은행서양식","form":"5-06-0893","name":"주택소유확인 시스템 이용관련 필수 개인(신용) 정보 수집•이용 및 제공 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"9","cat":"은행서양식","form":"5-16-0277","name":"확약서(서울특별시 청년 임차보증금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"10","cat":"은행서양식","form":"5-16-0274","name":"확약서(서울특별시 신혼 임차보증금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"11","cat":"은행서양식","form":"5-16-0373","name":"확약서(기준금리 금융채2년물 전세자금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"12","cat":"보증기관서양식","form":"5-16-0038","name":"보증조건변경신청서(한국주택금융공사용)","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"13","cat":"보증기관서양식","form":"5-06-0810","name":"개인(신용)정보수집이용.제공동의서 (한국주택금융공사용)","check":"","who":["배우자·결혼예정자","연대보증인"],"req":"해당시"},{"no":"14","cat":"보증기관서양식","form":"5-16-0288","name":"임대차 연장(계약) 사실 확인서","check":"","who":["본인"],"req":"해당시"},{"no":"","cat":"보증기관서양식","form":"5-16-0435","name":"임대차계약 종료에 관한 확약서","check":"","who":["본인"],"req":"해당시"},{"no":"15","cat":"보증기관서양식","form":"5-16-0249","name":"다주택 처분 확약서","check":"","who":["본인"],"req":"해당시"},{"no":"16","cat":"보증기관서양식","form":"5-16-0303","name":"배우자 주택보유수 사실 확인서","check":"","who":["본인"],"req":"해당시"},{"no":"17","cat":"차주 제출서류","form":"","name":"신분증","check":"","who":[],"req":"필수"},{"no":"18","cat":"차주 제출서류","form":"","name":"주민등록등본(1개월 이내 발급분) (분리된 배우자 있을 경우 주민등록등본 추가 징구 필수)","check":"","who":[],"req":"필수"},{"no":"19","cat":"차주 제출서류","form":"","name":"전입세대확인서","check":"","who":[],"req":"필수"},{"no":"20","cat":"차주 제출서류","form":"","name":"가족관계증명서","check":"","who":[],"req":"필수"},{"no":"21","cat":"차주 제출서류","form":"","name":"혼인관계증명서","check":"","who":[],"req":"해당시"},{"no":"22","cat":"차주 제출서류","form":"","name":"확정일자 있는 임대차계약서(사본) [묵시적 연장으로 미작서한 경우 징구 생략 가능]","check":"","who":[],"req":"필수"},{"no":"23","cat":"차주 제출서류","form":"","name":"재직증빙 입증서류","check":"","who":[],"req":"해당시"},{"no":"24","cat":"차주 제출서류","form":"","name":"소득입증서류","check":"","who":[],"req":"해당시"},{"no":"25","cat":"차주 제출서류","form":"","name":"현 거주주택 및 임차주택 등기부등본","check":"","who":[],"req":"필수"},{"no":"26","cat":"차주 제출서류","form":"","name":"(임시)사용승인서(또는 사용검사필증,준공검사필증)(사본)","check":"","who":[],"req":"해당시"},{"no":"27","cat":"차주 제출서류","form":"","name":"신탁계약서(사본) 및 신탁원부(사본)","check":"","who":[],"req":"해당시"},{"no":"28","cat":"차주 제출서류","form":"","name":"금융거래확인서(본인 및 배우자)","check":"","who":[],"req":"해당시"},{"no":"29","cat":"차주 제출서류","form":"","name":"보유 '규제대상 아파트' 가격 증빙자료","check":"","who":[],"req":"해당시"},{"no":"30","cat":"차주 제출서류","form":"","name":"임차권등기(명령) 신청 접수증 등","check":"","who":[],"req":"해당시"},{"no":"31","cat":"차주 제출서류","form":"","name":"서울특별시 융자추천서","check":"","who":[],"req":"해당시"},{"no":"32","cat":"전산출력물","form":"","name":"대출원장조회(은행거래현황)","check":"","who":[],"req":"필수"},{"no":"33","cat":"전산출력물","form":"","name":"승인장","check":"","who":[],"req":"필수"},{"no":"34","cat":"전산출력물","form":"","name":"무주택확인","check":"","who":[],"req":"필수"},{"no":"35","cat":"전산출력물","form":"","name":"보증서","check":"","who":[],"req":"필수"},{"no":"36","cat":"전산출력물","form":"","name":"신용정보 및 기타 출력물","check":"","who":[],"req":"필수"}]}}},"sgi":{"title":"우량주택전세론","sheets":{"new":{"sheet":"우량주택전세론","title":"서류점검목록표 [우량주택전세론, 군간부전세자금대출_추가]","items":[{"no":"1","cat":"은행약정서류","form":"5-06-0967","name":"적합성•적정성 고객정보 확인서 (개인 및 개인사업자용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행약정서류","form":"5-06-0989","name":"확인서(계약서류 제공 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"3","cat":"은행약정서류","form":"5-16-0178","name":"대출신청서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행약정서류","form":"3-06-1040","name":"대출거래약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"5","cat":"은행약정서류","form":"5-06-0171","name":"추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"6","cat":"은행약정서류","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"7","cat":"은행약정서류","form":"3-06-1054","name":"근질권설정계약서(예.적금용,동산용,유가증권용)","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"8","cat":"은행약정서류","form":"3-06-1058","name":"채권양도계약서(근담보)","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"9","cat":"은행약정서류","form":"5-16-0285","name":"추가약정서(주택취득제한등에 대한 전세자금대출 추가약정용)","check":"","who":["본인"],"req":"필수"},{"no":"10","cat":"은행약정서류","form":"5-06-0548","name":"개인(신용)정보 조회 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"11","cat":"은행약정서류","form":"5-16-0179","name":"필수 개인(신용)정보 수집☞이용 및 제공 동의서 (가계여신 금융거래)","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"12","cat":"은행약정서류","form":"5-16-1029","name":"필수 개인(신용)정보 조회 · 수집 · 이용 동의서[대안정보]","check":"","who":["본인"],"req":"필수"},{"no":"13","cat":"은행약정서류","form":"5-06-0893","name":"주택소유확인 시스템 이용관련 필수 개인(신용) 정보 수집•이용 및 제공 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"14","cat":"은행약정서류","form":"5-16-0088","name":"대출소개서","check":"","who":["본인"],"req":"해당시"},{"no":"15","cat":"은행약정서류","form":"5-06-0943","name":"전세자금대출 이용 확약서 (서울보증보험증권 담보 전세자금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"16","cat":"은행약정서류","form":"5-06-0931","name":"실수요자 증명 확약서(서울보증보험 담보 전세대출용","check":"","who":["본인"],"req":"해당시"},{"no":"17","cat":"은행약정서류","form":"5-16-0241","name":"상품별 필수 개인(신용)정보 수집.이용 및 제공 동의서 (전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"필수"},{"no":"18","cat":"은행약정서류","form":"5-16-0235","name":"상품별 필수 개인(신용)정보 수집 · 이용 및 제공 동의서 (군간부전세자금대출(기본))","check":"","who":["본인"],"req":"필수 (군전세)"},{"no":"19","cat":"은행약정서류","form":"5-16-0259","name":"상품별 필수 개인(신용)정보 제3자 제공동의서(우량주택전세론, 군간부전세자금대출_기본, 군간부전세자금대출_추가)","check":"","who":["본인"],"req":"필수"},{"no":"20","cat":"은행약정서류","form":"5-16-0373","name":"확약서(기준금리 금융채2년물 전세자금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"21","cat":"전세대출추가서류","form":"5-16-0238","name":"개인(신용)정보 처리 동의서(전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"필수"},{"no":"22","cat":"전세대출추가서류","form":"5-16-0207","name":"추가약정서[개인금융신용보험]","check":"","who":["본인"],"req":"필수"},{"no":"23","cat":"전세대출추가서류","form":"5-06-0748","name":"계약 체결 이행 등을 위한 필수 동의서(개인금융성 신용보험용) (5-06-0748)","check":"","who":["본인"],"req":"필수"},{"no":"24","cat":"전세대출추가서류","form":"5-16-0220","name":"사전고지확인서","check":"","who":["본인"],"req":"필수"},{"no":"25","cat":"전세대출추가서류","form":"5-16-0334","name":"포괄위임장","check":"","who":["본인"],"req":"필수"},{"no":"26","cat":"전세대출추가서류","form":"5-16-0332","name":"질권설정통지서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"27","cat":"전세대출추가서류","form":"5-16-0219","name":"질권설정승낙서 및 임대차보증금 반환 확약서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"28","cat":"전세대출추가서류","form":"5-16-0333","name":"채권양도통지서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"29","cat":"전세대출추가서류","form":"5-16-0212","name":"채권양도승낙서 및 임대차보증금 반환 확약서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"30","cat":"전세대출추가서류","form":"5-16-0430","name":"확인서(전세자금대출 방문 현장조사 안내용)","check":"","who":["본인"],"req":"필수"},{"no":"31","cat":"전세대출추가서류","form":"5-16-0222","name":"대출금 지급 위임장","check":"","who":["본인"],"req":"해당시"},{"no":"32","cat":"전세대출추가서류","form":"5-16-0223","name":"공동임차인 확인서","check":"","who":["본인"],"req":"해당시"},{"no":"33","cat":"전세대출추가서류","form":"5-16-0225","name":"임차보증금에 대한 권리침해 유무 확인서 (공공임대사업자 임대주택용)","check":"","who":["본인"],"req":"해당시"},{"no":"34","cat":"전세대출추가서류","form":"5-06-1001","name":"전세자금대출 사고예방 Check Sheet","check":"","who":["본인"],"req":"필수"},{"no":"35","cat":"차주제출서류","form":"","name":"임대차계약서(원본), 중개대상물 확인ㆍ설명서, 공제증서 사본","check":"","who":[],"req":"필수"},{"no":"36","cat":"차주제출서류","form":"","name":"부동산 등기부등본 \"어린이집,유치원으로 사용중인 경우 취급불가\"","check":"","who":[],"req":"필수"},{"no":"37","cat":"차주제출서류","form":"","name":"주민등록등본 / 초본","check":"","who":[],"req":"필수"},{"no":"38","cat":"차주제출서류","form":"","name":"전입세대확인서","check":"","who":[],"req":""},{"no":"39","cat":"차주제출서류","form":"","name":"신분증","check":"","who":[],"req":"필수"},{"no":"40","cat":"차주제출서류","form":"","name":"소득 및 재직 증빙서류","check":"","who":[],"req":"필수"},{"no":"41","cat":"차주제출서류","form":"","name":"대출금지급증빙","check":"","who":[],"req":"해당시"},{"no":"42","cat":"차주제출서류","form":"","name":"전세대부(이자지원) 추천서","check":"","who":[],"req":""},{"no":"43","cat":"차주제출서류","form":"","name":"분양계약서","check":"","who":[],"req":"해당시"},{"no":"44","cat":"전산출력물","form":"","name":"대출원장조회(은행거래현황표)","check":"","who":[],"req":"필수"},{"no":"45","cat":"전산출력물","form":"","name":"승인장 및 승인신청서","check":"","who":[],"req":"필수"},{"no":"46","cat":"전산출력물","form":"","name":"시세조회 출력물 또는 감정평가서","check":"","who":[],"req":"필수"},{"no":"47","cat":"전산출력물","form":"","name":"은행연합회 신용정보","check":"","who":[],"req":"필수"},{"no":"48","cat":"전산출력물","form":"","name":"권리조사 보고서","check":"","who":[],"req":"필수"},{"no":"49","cat":"전산출력물","form":"","name":"권리확인 보고서","check":"","who":[],"req":"필수"},{"no":"50","cat":"기타 서식","form":"","name":"임차보증금반환채권 양도계약 합의해제 협약서 (5-06-0629)","check":"","who":[],"req":"해당시"},{"no":"51","cat":"기타 서식","form":"","name":"채권양도계약 해제 및 질권설정통지서 (5-06-0630)","check":"","who":[],"req":"해당시"}]},"ext":{"sheet":"우량주택전세론 (연장)","title":"서류점검목록표 [우량주택전세론, 군간부전세자금대출_기본, 군간부전세자금대출_추가]","items":[{"no":"1","cat":"은행약정서류","form":"5-06-0977","name":"확인서(불공정영업행위 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행약정서류","form":"3-06-1093","name":"대출거래추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"3","cat":"은행약정서류","form":"5-06-0171","name":"추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행약정서류","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"5","cat":"은행약정서류","form":"5-06-0899","name":"가계대출핵심상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"6","cat":"은행약정서류","form":"5-16-0285","name":"추가약정서(주택취득제한등에 대한 전세자금대출 추가약정용)","check":"","who":["본인"],"req":"필수"},{"no":"7","cat":"은행약정서류","form":"5-06-0548","name":"개인(신용)정보 조회 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"해당시"},{"no":"8","cat":"은행약정서류","form":"5-16-0179","name":"필수 개인(신용)정보 수집☞이용 및 제공 동의서 (가계여신 금융거래)","check":"","who":["배우자·결혼예정자"],"req":"해당시"},{"no":"9","cat":"은행약정서류","form":"5-16-0241","name":"상품별 필수 개인(신용)정보 수집.이용 및 제공 동의서 (전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"해당시"},{"no":"10","cat":"은행약정서류","form":"5-16-0238","name":"개인(신용)정보 처리 동의서(전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"해당시"},{"no":"11","cat":"은행약정서류","form":"5-06-0893","name":"주택소유확인 시스템 이용관련 필수 개인(신용) 정보 수집•이용 및 제공 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"12","cat":"은행약정서류","form":"5-16-0373","name":"확약서(기준금리 금융채2년물 전세자금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"13","cat":"보증기관서식","form":"5-16-0207","name":"추가약정서[개인금융신용보험]","check":"","who":["본인"],"req":"필수"},{"no":"14","cat":"보증기관서식","form":"5-06-0748","name":"계약 체결 이행 등을 위한 필수 동의서(개인금융성 신용보험용) (5-06-0748)","check":"","who":["본인"],"req":"필수"},{"no":"15","cat":"보증기관서식","form":"5-06-0896","name":"다주택 처분 확약서(서울보증보험)","check":"","who":["본인"],"req":"해당시"},{"no":"16","cat":"보증기관서식","form":"5-16-0334","name":"포괄위임장","check":"","who":["본인"],"req":"해당시"},{"no":"17","cat":"보증기관서식","form":"5-16-0223","name":"공동임차인 확인서","check":"","who":["본인"],"req":"해당시"},{"no":"18","cat":"보증기관서식","form":"5-16-0225","name":"임차보증금에 대한 권리침해 유무 확인서 (공공임대사업자 임대주택용)","check":"","who":["본인"],"req":"해당시"},{"no":"19","cat":"차주제출서류","form":"","name":"갱신 임대차계약서(원본) 임대인 변경시 매매계약서 등","check":"","who":["본인"],"req":"작성시"},{"no":"20","cat":"차주제출서류","form":"","name":"부동산 등기부등본","check":"","who":["본인"],"req":"필수"},{"no":"21","cat":"차주제출서류","form":"","name":"주민등록등본","check":"","who":["본인"],"req":"필수"},{"no":"22","cat":"차주제출서류","form":"","name":"전입세대확인서","check":"","who":["본인"],"req":"필수"},{"no":"23","cat":"차주제출서류","form":"","name":"신분증","check":"","who":["본인"],"req":"필수"},{"no":"24","cat":"차주제출서류","form":"","name":"소득 및 재직 증빙서류","check":"","who":["본인"],"req":"생략가능"},{"no":"25","cat":"차주제출서류","form":"","name":"대출금지급증빙","check":"","who":["본인"],"req":"해당시"},{"no":"26","cat":"차주제출서류","form":"","name":"전세대부(이자지원) 추천서","check":"","who":["본인"],"req":"필수"},{"no":"27","cat":"전산출력물","form":"","name":"대출원장조회(은행거래현황표)","check":"","who":[],"req":"필수"},{"no":"28","cat":"전산출력물","form":"","name":"승인장 및 승인신청서","check":"","who":[],"req":"필수"},{"no":"29","cat":"전산출력물","form":"","name":"은행연합회 신용정보","check":"","who":[],"req":"필수"},{"no":"30","cat":"전산출력물","form":"","name":"권리조사 보고서","check":"","who":[],"req":"필수"},{"no":"31","cat":"전산출력물","form":"","name":"권리확인 보고서","check":"","who":[],"req":"필수"},{"no":"32","cat":"기타 서식","form":"","name":"임차보증금반환채권 양도계약 합의해제 협약서 (5-06-0629)","check":"","who":[],"req":"해당시"},{"no":"33","cat":"기타 서식","form":"","name":"채권양도계약 해제 및 질권설정통지서 (5-06-0630)","check":"","who":[],"req":"해당시"}]}}},"anshim":{"title":"전세금안심대출","sheets":{"new":{"sheet":"전세금안심대출(신규)","title":"발송 목록표 [전세금안심대출-임차인용]","items":[{"no":"1","cat":"은행약정서류","form":"5-06-0989","name":"확인서(계약서류 제공 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행약정서류","form":"5-16-0178","name":"대출신청서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"3","cat":"은행약정서류","form":"3-06-1040","name":"대출거래약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행약정서류","form":"5-06-0171","name":"추가약정서(가계대출 금리감면용)","check":"","who":["본인"],"req":"필수"},{"no":"5","cat":"은행약정서류","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"6","cat":"은행약정서류","form":"5-06-0548","name":"개인(신용)정보 조회동의서","check":"","who":["본인","배우자·결혼예정자","연대보증인"],"req":"필수"},{"no":"7","cat":"은행약정서류","form":"5-16-0179","name":"필수 개인(신용)정보 수집.이용 및 제공동의서 (가계여신 금융거래)","check":"","who":["본인","배우자·결혼예정자","연대보증인"],"req":"필수"},{"no":"8","cat":"은행약정서류","form":"5-16-1029","name":"필수 개인(신용)정보 조회 · 수집 · 이용 동의서[대안정보]","check":"","who":["본인"],"req":"필수"},{"no":"9","cat":"은행약정서류","form":"5-06-0893","name":"주택소유확인 시스템 이용관련 필수 개인(신용) 정보 수집이용 및 제공 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"10","cat":"은행약정서류","form":"5-16-0238","name":"개인(신용)정보 처리 동의서 (전세자금대출 권리보험가입용)","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"11","cat":"은행약정서류","form":"5-16-0241","name":"상품별 필수 개인(신용)정보 수집,이용 및 제공동의서 (전세자금대출 권리보험가입용)","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"12","cat":"은행약정서류","form":"5-06-0304","name":"대출금 지급 위임장","check":"","who":["본인"],"req":"필수"},{"no":"13","cat":"은행약정서류","form":"5-06-0738","name":"동의서(대출비용지급용)","check":"","who":["본인"],"req":"필수"},{"no":"14","cat":"은행약정서류","form":"5-16-0285","name":"추가약정서 (주택취득제한등에 대한 전세자금대출 추가약정용)","check":"","who":["본인"],"req":"필수"},{"no":"15","cat":"은행약정서류","form":"5-16-0430","name":"확인서(전세자금대출 방문 현장조사 안내용)","check":"","who":["본인"],"req":"필수"},{"no":"16","cat":"은행약정서류","form":"5-06-1001","name":"전세자금대출 사고예방 Check Sheet","check":"","who":["본인"],"req":"필수"},{"no":"17","cat":"공사약정서류","form":"5-16-0344","name":"전세금안심대출보증 신청서 [보증료 자동이체 신청서]","check":"","who":["본인"],"req":"필수"},{"no":"18","cat":"공사약정서류","form":"5-16-0343","name":"전세금 안심대출보증 확약서","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"19","cat":"공사약정서류","form":"5-16-0340","name":"전세금안심대출 보증채무확약서 (고객정보활용동의서 포함)","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"20","cat":"공사약정서류","form":"5-16-0335","name":"전세금안심대출보증을 위한 개인정보제공동의서(전세금안심대출보증 임차인용)","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"21","cat":"공사약정서류","form":"5-16-0432","name":"전세금안심대출보증을 위한 개인정보제공동의서(전세금안심대출)(배우자용)","check":"","who":["배우자·결혼예정자"],"req":"해당시"},{"no":"22","cat":"공사약정서류","form":"5-16-0345","name":"채권양도계약서(전세금안심대출보증_승낙용)","check":"","who":["본인","임대인"],"req":"필수 (택1)"},{"no":"23","cat":"공사약정서류","form":"5-16-0342","name":"채권양도계약서(전세금안심대출보증_통지용)","check":"","who":["본인","연대보증인"],"req":"필수 (택1)"},{"no":"24","cat":"공사약정서류","form":"5-16-0346","name":"위임장","check":"","who":["본인"],"req":"해당시"},{"no":"25","cat":"공사약정서류","form":"5-16-0341","name":"안심대출보증 이용 관련 확약서","check":"","who":["본인"],"req":"해당시"},{"no":"26","cat":"공사약정서류","form":"0-08-0026","name":"개인(민감)정보 수집이용조회 및 제3자 제공동의서(선택적)","check":"","who":["본인"],"req":"해당시"},{"no":"27","cat":"공사약정서류","form":"0-08-0033","name":"전세대출 실수요자 증명확인","check":"","who":["본인"],"req":"해당시"},{"no":"28","cat":"공사약정서류","form":"5-16-0303","name":"배우자 주택보유수 사실 확인서","check":"","who":["본인"],"req":"해당시"},{"no":"29","cat":"공사약정서류","form":"0-08-0030","name":"확인서(별지서식 5호) 필요시, 타 전세계약 확인내역","check":"","who":["본인"],"req":"해당시"},{"no":"30","cat":"차주 제출서류","form":"","name":"확정일자부 임대차계약서 중개대상물건확인설명서, 공제증서","check":"","who":[],"req":"필수"},{"no":"31","cat":"차주 제출서류","form":"","name":"계약금 등 이미 납부한 금액을 확인할 수 있는 서류","check":"","who":[],"req":"필수"},{"no":"32","cat":"차주 제출서류","form":"","name":"임차주택 등기부등본","check":"","who":[],"req":"필수"},{"no":"33","cat":"차주 제출서류","form":"","name":"전입세대확인서","check":"","who":[],"req":"필수"},{"no":"34","cat":"차주 제출서류","form":"","name":"임차주택 건축물대장","check":"","who":[],"req":"필수"},{"no":"35","cat":"차주 제출서류","form":"","name":"신분증 및 주민등록등 / 초본","check":"","who":[],"req":"필수"},{"no":"36","cat":"차주 제출서류","form":"","name":"가족관계증명서","check":"","who":[],"req":"해당시"},{"no":"37","cat":"차주 제출서류","form":"","name":"소득증빙 입증서류","check":"","who":[],"req":"필수"},{"no":"38","cat":"차주 제출서류","form":"","name":"재직증빙 입증서류 (신청일기준 1개월이내 발급분","check":"","who":[],"req":"필수"},{"no":"39","cat":"차주 제출서류","form":"","name":"금융거래확인서","check":"","who":[],"req":"해당시"},{"no":"40","cat":"차주 제출서류","form":"","name":"대출금 상환용 위임장 / 법무사 위임장 / 인감증명서2부","check":"","who":["임대인"],"req":"해당시"},{"no":"41","cat":"전산 출력물","form":"","name":"보증신청결과 및 보증서, 권리조사 관련 출력물","check":"","who":[],"req":"필수"},{"no":"42","cat":"전산 출력물","form":"","name":"시세조회 출력물","check":"","who":[],"req":"필수"},{"no":"43","cat":"전산 출력물","form":"","name":"대출원장조회(은행거래현황표)","check":"","who":[],"req":"필수"},{"no":"44","cat":"전산 출력물","form":"","name":"승인장","check":"","who":[],"req":"필수"},{"no":"45","cat":"전산 출력물","form":"","name":"무주택확인","check":"","who":[],"req":"필수"}]},"ext":{"sheet":"전세금안심대출(연장)","title":"발송 목록표 [전세금안심대출-임차인용]","items":[{"no":"1","cat":"은행약정서류","form":"5-06-0977","name":"확인서(불공정영업행위 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행약정서류","form":"3-06-1093","name":"대출거래추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"3","cat":"은행약정서류","form":"5-06-0171","name":"추가약정서(가계대출 금리감면용)","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행약정서류","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"5","cat":"은행약정서류","form":"5-06-0548","name":"개인(신용)정보 조회동의서","check":"","who":["본인","배우자·결혼예정자","연대보증인"],"req":"해당시"},{"no":"6","cat":"은행약정서류","form":"5-16-0179","name":"필수 개인(신용)정보 수집.이용 및 제공동의서 (가계여신 금융거래)","check":"","who":["배우자·결혼예정자","연대보증인"],"req":"해당시"},{"no":"7","cat":"은행약정서류","form":"5-06-0893","name":"주택소유확인 시스템 이용관련 필수 개인(신용) 정보 수집이용 및 제공 동의서","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"8","cat":"은행약정서류","form":"5-16-0238","name":"개인(신용)정보 처리 동의서(전세자금대출 권리보험가입용)","check":"","who":["본인","연대보증인"],"req":"해당시"},{"no":"9","cat":"은행약정서류","form":"5-16-0241","name":"상품별 필수 개인(신용)정보 수집,이용 및 제공동의서 (전세자금대출 권리보험가입용)","check":"","who":["본인","연대보증인"],"req":"해당시"},{"no":"10","cat":"은행약정서류","form":"5-16-0285","name":"추가약정서 (주택취득제한등에 대한 전세자금대출 추가약정용)","check":"","who":[],"req":"필수"},{"no":"11","cat":"공사약정서류","form":"0-08-0036","name":"보증조건변경신청서","check":"","who":["본인"],"req":"필수"},{"no":"","cat":"공사약정서류","form":"5-16-0335","name":"전세금안심대출보증을 위한 개인정보 수집·이용·제공·조회 동의서 (임차인용)","check":"","who":["본인","연대보증인"],"req":"필수"},{"no":"","cat":"공사약정서류","form":"5-16-0432","name":"전세금안심대출보증을 위한 개인정보제공동의서(전세금안심대출)(배우자용)","check":"","who":["배우자·결혼예정자"],"req":"해당시"},{"no":"12","cat":"공사약정서류","form":"0-08-0039","name":"전세계약갱신의향서","check":"","who":["본인","연대보증인"],"req":"해당시"},{"no":"13","cat":"공사약정서류","form":"0-08-0043","name":"전세자금대출특약보증 추가 연장에 대한 확약서","check":"","who":["본인"],"req":"해당시"},{"no":"14","cat":"공사약정서류","form":"0-08-0044","name":"보증이행 청구를 위한 전세자금대출특약보증 연장 확약서","check":"","who":["본인"],"req":"해당시"},{"no":"15","cat":"공사약정서류","form":"5-16-0345","name":"채권양도계약서(전세금안심대출보증_승낙용) (채권양도금액이 증액된 경우)","check":"","who":["본인","임대인"],"req":"해당시 (택1)"},{"no":"16","cat":"공사약정서류","form":"5-16-0342","name":"채권양도계약서(전세금안심대출보증_통지용) (채권양도금액이 증액된 경우)","check":"","who":["본인","연대보증인"],"req":"해당시 (택1)"},{"no":"17","cat":"공사약정서류","form":"5-16-0346","name":"위임장","check":"","who":["본인"],"req":"해당시"},{"no":"18","cat":"공사약정서류","form":"0-08-0026","name":"개인(민감)정보 수집이용조회 및 제3자 제공동의서(선택적)","check":"","who":["본인"],"req":"해당시"},{"no":"19","cat":"공사약정서류","form":"0-08-0033","name":"전세대출 실수요자 증명확인","check":"","who":["본인"],"req":"해당시"},{"no":"","cat":"공사약정서류","form":"5-16-0303","name":"배우자 주택보유수 사실확인서","check":"","who":["본인"],"req":"해당시"},{"no":"20","cat":"공사약정서류","form":"0-08-0030","name":"확인서(별지서식 5호) 필요시, 타 전세계약 확인내역","check":"","who":["본인"],"req":"해당시"},{"no":"21","cat":"차주제출서류","form":"","name":"(갱신)임대차계약서","check":"","who":[],"req":"필수"},{"no":"22","cat":"차주제출서류","form":"","name":"전세보증금 수령 및 지급 확인서류 (임차보증금이 증액또는 감액된 경우)","check":"","who":[],"req":"필수"},{"no":"23","cat":"차주제출서류","form":"","name":"임차주택 등기부등본","check":"","who":[],"req":"필수"},{"no":"24","cat":"차주제출서류","form":"","name":"전입세대확인서","check":"","who":[],"req":"필수"},{"no":"25","cat":"차주제출서류","form":"","name":"임차주택 건축물대장","check":"","who":[],"req":"필수"},{"no":"26","cat":"차주제출서류","form":"","name":"신분증 및 주민등록등 / 초본","check":"","who":["본인","배우자·결혼예정자","연대보증인"],"req":"필수"},{"no":"27","cat":"차주제출서류","form":"","name":"가족관계증명서","check":"","who":[],"req":"해당시"},{"no":"28","cat":"차주제출서류","form":"","name":"소득 및 재직 증빙 입증 서류","check":"","who":[],"req":"해당시"},{"no":"29","cat":"전산 출력물","form":"","name":"보증신청결과 및 보증서, 권리조사 관련 출력물","check":"","who":[],"req":"필수"},{"no":"30","cat":"전산 출력물","form":"","name":"시세조회 출력물","check":"","who":[],"req":"필수"},{"no":"31","cat":"전산 출력물","form":"","name":"대출원장조회(은행거래현황표)","check":"","who":[],"req":"필수"},{"no":"32","cat":"전산 출력물","form":"","name":"승인장","check":"","who":[],"req":"필수"},{"no":"33","cat":"전산 출력물","form":"","name":"무주택확인","check":"","who":[],"req":"필수"}]}}},"military":{"title":"군간부 전세자금대출(기본)","sheets":{"new":{"sheet":"군간부(기본) 신규","title":"서류점검목록표 [군간부전세자금대출_기본]","items":[{"no":"1","cat":"은행약정서류","form":"5-06-0967","name":"적합성•적정성 고객정보 확인서 (개인 및 개인사업자용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행약정서류","form":"5-06-0989","name":"확인서(계약서류 제공 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"3","cat":"은행약정서류","form":"5-16-0178","name":"대출신청서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행약정서류","form":"3-06-1040","name":"대출거래약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"5","cat":"은행약정서류","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"6","cat":"은행약정서류","form":"3-06-1054","name":"근질권설정계약서(예.적금용,동산용,유가증권용)","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"7","cat":"은행약정서류","form":"3-06-1058","name":"채권양도계약서(근담보)","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"8","cat":"은행약정서류","form":"5-06-0548","name":"개인(신용)정보 조회 동의서","check":"","who":["본인"],"req":"필수"},{"no":"9","cat":"은행약정서류","form":"5-16-0179","name":"필수 개인(신용)정보 수집☞이용 및 제공 동의서 (가계여신 금융거래)","check":"","who":["본인","배우자·결혼예정자"],"req":"필수"},{"no":"10","cat":"은행약정서류","form":"5-16-1029","name":"필수 개인(신용)정보 조회 · 수집 · 이용 동의서[대안정보]","check":"","who":["본인"],"req":"필수"},{"no":"11","cat":"은행약정서류","form":"5-16-0241","name":"상품별 필수 개인(신용)정보 수집.이용 및 제공 동의서 (전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"필수"},{"no":"12","cat":"은행약정서류","form":"5-16-0235","name":"상품별 필수 개인(신용)정보 수집 · 이용 및 제공 동의서 (군간부전세자금대출(기본))","check":"","who":["본인"],"req":"필수 (군전세)"},{"no":"13","cat":"은행약정서류","form":"5-16-0259","name":"상품별 필수 개인(신용)정보 제3자 제공동의서(우량주택전세론, 군간부전세자금대출_기본, 군간부전세자금대출_추가)","check":"","who":["본인"],"req":"필수"},{"no":"14","cat":"은행약정서류","form":"5-06-0989","name":"확인서 (계약서류 제공 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"15","cat":"은행약정서류","form":"5-16-0373","name":"확약서(기준금리 금융채2년물 전세자금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"16","cat":"전세대출추가서류","form":"5-16-0238","name":"개인(신용)정보 처리 동의서(전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"필수"},{"no":"17","cat":"전세대출추가서류","form":"5-16-0207","name":"추가약정서[개인금융신용보험]","check":"","who":["본인"],"req":"필수"},{"no":"18","cat":"전세대출추가서류","form":"5-06-0748","name":"계약 체결 이행 등을 위한 필수 동의서(개인금융성 신용보험용) (5-06-0748)","check":"","who":["본인"],"req":"필수"},{"no":"19","cat":"전세대출추가서류","form":"5-16-0220","name":"사전고지확인서","check":"","who":["본인"],"req":"필수"},{"no":"20","cat":"전세대출추가서류","form":"5-16-0334","name":"포괄위임장","check":"","who":["본인"],"req":"필수"},{"no":"21","cat":"전세대출추가서류","form":"5-16-0332","name":"질권설정통지서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"22","cat":"전세대출추가서류","form":"5-16-0219","name":"질권설정승낙서 및 임대차보증금 반환 확약서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"23","cat":"전세대출추가서류","form":"5-16-0333","name":"채권양도통지서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"24","cat":"전세대출추가서류","form":"5-16-0212","name":"채권양도승낙서 및 임대차보증금 반환 확약서","check":"","who":["본인"],"req":"필수 (택1)"},{"no":"25","cat":"전세대출추가서류","form":"5-16-0430","name":"확인서(전세자금대출 방문 현장조사 안내용)","check":"","who":["본인"],"req":"필수"},{"no":"26","cat":"전세대출추가서류","form":"5-16-0222","name":"대출금 지급 위임장","check":"","who":["본인"],"req":"해당시"},{"no":"27","cat":"전세대출추가서류","form":"5-06-0738","name":"동의서 (대출비용 지급용)","check":"","who":["본인"],"req":"필수"},{"no":"28","cat":"전세대출추가서류","form":"5-16-0225","name":"임차보증금에 대한 권리침해 유무 확인서 (공공임대사업자 임대주택용)","check":"","who":["본인"],"req":"해당시"},{"no":"29","cat":"전세대출추가서류","form":"5-06-1001","name":"전세자금대출 사고예방 Check Sheet","check":"","who":["본인"],"req":"필수"},{"no":"30","cat":"차주제출서류","form":"","name":"임대차계약서(원본), 중개대상물 확인ㆍ설명서, 공제증서 사본","check":"","who":[],"req":"필수"},{"no":"31","cat":"차주제출서류","form":"","name":"부동산 등기부등본 \"어린이집,유치원으로 사용중인 경우 취급불가\"","check":"","who":[],"req":"필수"},{"no":"32","cat":"차주제출서류","form":"","name":"주민등록등본 / 초본","check":"","who":[],"req":"필수"},{"no":"33","cat":"차주제출서류","form":"","name":"전입세대확인서","check":"","who":[],"req":""},{"no":"34","cat":"차주제출서류","form":"","name":"신분증","check":"","who":[],"req":"필수"},{"no":"35","cat":"차주제출서류","form":"","name":"소득 및 재직 증빙서류","check":"","who":[],"req":"필수"},{"no":"36","cat":"차주제출서류","form":"","name":"대출금지급증빙","check":"","who":[],"req":"해당시"},{"no":"37","cat":"차주제출서류","form":"","name":"전세대부(이자지원) 추천서","check":"","who":[],"req":""},{"no":"38","cat":"차주제출서류","form":"","name":"분양계약서","check":"","who":[],"req":"해당시"},{"no":"39","cat":"전산출력물","form":"","name":"대출원장조회(은행거래현황표)","check":"","who":[],"req":"필수"},{"no":"40","cat":"전산출력물","form":"","name":"승인장 및 승인신청서","check":"","who":[],"req":"필수"},{"no":"41","cat":"전산출력물","form":"","name":"시세조회 출력물 또는 감정평가서","check":"","who":[],"req":"필수"},{"no":"42","cat":"전산출력물","form":"","name":"은행연합회 신용정보","check":"","who":[],"req":"필수"},{"no":"43","cat":"전산출력물","form":"","name":"권리조사 보고서","check":"","who":[],"req":"필수"},{"no":"44","cat":"전산출력물","form":"","name":"권리확인 보고서","check":"","who":[],"req":"필수"},{"no":"45","cat":"기타 서식","form":"","name":"임차보증금반환채권 양도계약 합의해제 협약서 (5-06-0629)","check":"","who":[],"req":"해당시"},{"no":"46","cat":"기타 서식","form":"","name":"채권양도계약 해제 및 질권설정통지서 (5-06-0630)","check":"","who":[],"req":"해당시"}]},"ext":{"sheet":"군간부(기본) 연장","title":"서류점검목록표 [군간부전세자금대출_기본]","items":[{"no":"1","cat":"은행약정서류","form":"5-06-0977","name":"확인서(불공정영업행위 확인용)","check":"","who":["본인"],"req":"필수"},{"no":"2","cat":"은행약정서류","form":"3-06-1093","name":"대출거래추가약정서(가계용)","check":"","who":["본인"],"req":"필수"},{"no":"3","cat":"은행약정서류","form":"5-06-0900","name":"전세자금대출상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"4","cat":"은행약정서류","form":"5-06-0899","name":"가계대출핵심상품설명서","check":"","who":["본인"],"req":"필수"},{"no":"5","cat":"은행약정서류","form":"5-06-0548","name":"개인(신용)정보 조회 동의서","check":"","who":["배우자·결혼예정자"],"req":"해당시"},{"no":"6","cat":"은행약정서류","form":"5-16-0179","name":"필수 개인(신용)정보 수집☞이용 및 제공 동의서 (가계여신 금융거래)","check":"","who":["배우자·결혼예정자"],"req":"해당시"},{"no":"7","cat":"은행약정서류","form":"5-16-0241","name":"상품별 필수 개인(신용)정보 수집.이용 및 제공 동의서 (전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"해당시"},{"no":"8","cat":"은행약정서류","form":"5-16-0259","name":"개인(신용)정보 제 3자 제공동의서 (우량주택전세론, 군간부전세자금대출)","check":"","who":["본인"],"req":"해당시"},{"no":"9","cat":"은행약정서류","form":"5-16-0235","name":"개인(신용)정보 수집.이용 및 제공동의서(군간부전(월)세자금대출)","check":"","who":["본인"],"req":"필수"},{"no":"10","cat":"은행약정서류","form":"5-16-0238","name":"개인(신용)정보 처리 동의서(전세자금대출 권리보험가입용)","check":"","who":["본인"],"req":"해당시"},{"no":"11","cat":"은행약정서류","form":"5-16-0373","name":"확약서(기준금리 금융채2년물 전세자금대출용)","check":"","who":["본인"],"req":"해당시"},{"no":"12","cat":"보증기관서식","form":"5-16-0207","name":"추가약정서[개인금융신용보험]","check":"","who":["본인"],"req":"필수"},{"no":"13","cat":"보증기관서식","form":"5-06-0748","name":"계약 체결 이행 등을 위한 필수 동의서(개인금융성 신용보험용) (5-06-0748)","check":"","who":["본인"],"req":"필수"},{"no":"14","cat":"보증기관서식","form":"5-16-0334","name":"포괄위임장","check":"","who":["본인"],"req":"해당시"},{"no":"15","cat":"보증기관서식","form":"5-16-0225","name":"임차보증금에 대한 권리침해 유무 확인서 (공공임대사업자 임대주택용)","check":"","who":["본인"],"req":"해당시"},{"no":"16","cat":"차주제출서류","form":"","name":"갱신 임대차계약서(원본) 임대인 변경시 매매계약서 등","check":"","who":["본인"],"req":"작성시"},{"no":"17","cat":"차주제출서류","form":"","name":"부동산 등기부등본 \"어린이집,유치원으로 사용중인 경우 취급불가\"","check":"","who":["본인"],"req":"필수"},{"no":"18","cat":"차주제출서류","form":"","name":"주민등록등본 / 초본","check":"","who":["본인"],"req":"필수"},{"no":"19","cat":"차주제출서류","form":"","name":"전입세대확인서","check":"","who":[],"req":""},{"no":"20","cat":"차주제출서류","form":"","name":"신분증","check":"","who":["본인"],"req":"필수"},{"no":"21","cat":"차주제출서류","form":"","name":"소득 및 재직 증빙서류","check":"","who":["본인"],"req":"생략가능"},{"no":"22","cat":"차주제출서류","form":"","name":"대출금지급증빙","check":"","who":["본인"],"req":"해당시"},{"no":"23","cat":"차주제출서류","form":"","name":"전세대부(이자지원) 추천서","check":"","who":["본인"],"req":"필수"},{"no":"24","cat":"전산출력물","form":"","name":"대출원장조회(은행거래현황표)","check":"","who":[],"req":"필수"},{"no":"25","cat":"전산출력물","form":"","name":"승인장 및 승인신청서","check":"","who":[],"req":"필수"},{"no":"26","cat":"전산출력물","form":"","name":"은행연합회 신용정보","check":"","who":[],"req":"필수"},{"no":"27","cat":"전산출력물","form":"","name":"권리조사 보고서","check":"","who":[],"req":"필수"},{"no":"28","cat":"전산출력물","form":"","name":"권리확인 보고서","check":"","who":[],"req":"필수"},{"no":"29","cat":"기타 서식","form":"","name":"임차보증금반환채권 양도계약 합의해제 협약서 (5-06-0629)","check":"","who":[],"req":"해당시"},{"no":"30","cat":"기타 서식","form":"","name":"채권양도계약 해제 및 질권설정통지서 (5-06-0630)","check":"","who":[],"req":"해당시"}]}}}};
+/* DOCS-DATA-END */
+
+// 상품 기준표 (금액 단위: 만원)
+const E = 10000;
+const PRODUCTS = [
+  { id:'newborn', name:'신생아 특례 버팀목', guarantor:'HUG / HF', housing:['무주택'], needNewborn:true,
+    incomeMax:()=>1.3*E, assetMax:3.45*E, depositMax:r=>r==='수도권'?5*E:4*E, ratio:()=>0.8, cap:()=>3*E, incomeMult:null,
+    notes:['85㎡ 이하(읍·면 100㎡)','1년 내 파양 시 기한이익상실'] },
+  { id:'buteom', name:'일반 버팀목전세', guarantor:'HUG / HF', housing:['무주택'],
+    marital:['신혼부부','예비신혼','일반','미혼'],
+    incomeMax:i=>(i.marital==='신혼부부'||i.marital==='예비신혼')?0.75*E:0.5*E, assetMax:3.45*E,
+    depositMax:(r,i)=>{const nh=i.marital==='신혼부부'||i.marital==='예비신혼';return r==='수도권'?(nh?4:3)*E:(nh?3:2)*E;},
+    ratio:()=>0.8, incomeMult:null,
+    cap:(i)=>{const nh=i.marital==='신혼부부'||i.marital==='예비신혼'; return i.region==='수도권'?(nh?3:1.2)*E:(nh?2:0.8)*E;},
+    notes:['85㎡ 이하(읍·면 100㎡)','사후 자산 초과 시 가산금리','신혼부부 한도는 다자녀 가구에도 적용(다자녀 입력 항목 없음)'] },
+  { id:'newlywed', name:'하나은행 신혼부부전세론', guarantor:'한국주택금융공사(HF)', housing:['무주택','1주택'],
+    marital:['신혼부부','예비신혼'], incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E,
+    ratio:()=>0.9, cap:()=>2*E, incomeMult:4.5, notes:['임대인 동의 불필요','DSR 심사 연동','대출 신청: 전입일 또는 잔금일 중 빠른 날부터 3개월 이내'] },
+  { id:'hfjs', name:'주택신보 전세자금대출', guarantor:'한국주택금융공사(HF)', housing:['무주택','1주택'],
+    incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E, ratio:()=>0.8, cap:i=>i.housing==='1주택'?(i.region==='수도권'?2*E:2.22*E):4.44*E, incomeMult:4.5,
+    notes:['1주택자 한도 2.22억원, 25.9.7 이후 수도권 계약은 2억원','보증료 연 0.02~0.20%(손님 부담)','미등기·법인 임대인 가능, 연간 금융비용부담율 40% 이내','소득 4.5배는 2026.7 비교표에서 확인되지 않음, 확인 필요','수도권 보증비율 80%(25.7.21 이후, 대출한도 비율과는 별개)'] },
+  { id:'anshim', name:'전세금안심대출', guarantor:'주택도시보증공사(HUG)', housing:['무주택','1주택'],
+    incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E, ratio:i=>(i.marital==='신혼부부'||i.youth==='예')?0.9:0.8,
+    cap:i=>{ if (i.housing==='1주택') return 2*E; const pref=(i.marital==='신혼부부'||i.youth==='예'); return i.region==='수도권'?(pref?4.5:4)*E:(pref?3.6:3.2)*E; }, incomeMult:null,
+    notes:['1주택자는 지역과 관계없이 최대 2억원','신혼·청년가구 한도 수도권 4.5억원, 지방 3.6억원 (보증금 90%)','연간 금융비용부담율 40% 이내','보증료 연 0.097~0.211% + 특약 0.031%(손님 부담), 중도상환해약금 0.59%(26.1.2)','전세금반환보증 동시 취급, 임대인 앞 채권양도 통지 필요','수도권 보증비율 80%(25.7.21 이후, 대출한도 비율과는 별개)'] },
+  { id:'sgi', name:'우량주택전세론', guarantor:'SGI 서울보증보험', housing:['무주택','1주택'],
+    incomeMax:null, assetMax:null, depositMax:null, ratio:i=>i.housing==='1주택'?0.6:0.8, cap:i=>i.housing==='1주택'?(i.region==='수도권'?2*E:3*E):5*E, incomeMult:null,
+    notes:['임대인 앞 질권설정 통지 필요, 대출 최대한도가 가장 큼','1주택자 한도 3억원(보증금 60%), 25.9.7 이후 수도권 계약은 2억원(보증금 60%)','보증료 연 0.137~0.402%(CB등급별, 은행 부담)','수도권 보증비율 80%(25.7.21 이후, 대출한도 비율과는 별개)'] },
+];
+
+// 주택 유형별 취급 여부: 'ok' | 'warn:메시지' (조건부) | 'no:메시지' (불가)
+const SENIOR = 'warn:선순위 임차보증금 합계 확인 필수';
+const UNREG_HF = 'warn:미등기 주택은 임시사용승인서·분양계약서를 낼 수 있는 일부 주택만 취급, 영업점 확인 필요';
+const TYPES = {
+  newborn:  { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'ok', 미등기:UNREG_HF },
+  buteom:   { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'ok', 미등기:UNREG_HF },
+  newlywed: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:SENIOR, 미등기:'ok' },
+  hfjs:     { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:SENIOR, 미등기:'ok' },
+  anshim:   { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'no:단독·다가구는 전세금안심 대상 주택에서 제외(2024.03.04)', 미등기:'no:등기부등본이 없으면 HUG 보증서 발급이 어려움' },
+  sgi:      { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'no:우량주택전세론은 단독·다가구 불가(대상 주택: 아파트, 연립, 다세대, 도시형생활주택, 주거용 오피스텔)', 미등기:'no:등기부등본이 없으면 SGI 보증서 발급이 어려움' },
+};
+const AREA_LIMIT = { newborn:true, buteom:true }; // 전용 85㎡ 이하 (읍·면 100㎡ 이하)
+
+// 금액 표기: 만원 단위 값을 '3억 6,000만원'처럼 천 단위 쉼표와 함께 표시
+const man = v => {
+  const n = Math.round(v), e = Math.floor(n/E), m = n % E;
+  if (e === 0) return m.toLocaleString('ko-KR') + '만원';
+  return m === 0 ? e.toLocaleString('ko-KR') + '억원' : e.toLocaleString('ko-KR') + '억 ' + m.toLocaleString('ko-KR') + '만원';
+};
+const eok = man;
+
+function evaluate(inp){
+  return PRODUCTS.map(p=>{
+    const why1=[], why2=[], why3=[], why4=[];
+    if (inp.housing==='2주택이상') why1.push('다주택자는 보증서 발급 불가');
+    else if (!p.housing.includes(inp.housing)) why1.push('무주택 세대주만 가능');
+    if (p.needNewborn && inp.newborn!=='예') why2.push('2년 이내 출산·입양 자녀 필요');
+    if (p.marital && !p.marital.includes(inp.marital)) why2.push(p.marital.includes('신혼부부')&&p.marital.length===2?'신혼부부(혼인 7년 이내) 또는 예비신혼만 가능':'혼인 상태 요건 미충족');
+    const im = p.incomeMax ? p.incomeMax(inp) : null;
+    if (im!=null && inp.income>im) why3.push(`연소득 ${man(im)} 이하만 가능 (입력 ${man(inp.income)})`);
+    if (p.assetMax!=null && inp.assets>p.assetMax) why3.push(`순자산 ${man(p.assetMax)} 이하만 가능 (입력 ${man(inp.assets)})`);
+    const dm = p.depositMax ? p.depositMax(inp.region, inp) : null;
+    if (dm!=null && inp.deposit>dm) why4.push(`${inp.region} 보증금 ${man(dm)} 이하만 가능 (입력 ${man(inp.deposit)})`);
+    // 주택 요건: 면적, 주거용 여부, 유형별 취급
+    const why5=[], warns=[];
+    if (AREA_LIMIT[p.id]) { const lim=inp.eupmyeon==='예'?100:85; if (inp.area>lim) why5.push(`전용면적 ${lim}㎡ 이하만 가능 (입력 ${inp.area}㎡)`); }
+    if (inp.houseType==='오피스텔' && inp.residential==='아니오') why5.push('주거용으로 전입신고가 불가능한 오피스텔은 전세대출 불가');
+    const tv = (TYPES[p.id]||{})[inp.houseType]||'ok';
+    if (tv.startsWith('no:')) why5.push(tv.slice(3)); else if (tv.startsWith('warn:')) warns.push(tv.slice(5));
+    if (inp.housing==='1주택' && inp.region==='수도권' && ['hfjs','anshim','sgi'].includes(p.id)) warns.push('수도권 1주택자는 DSR 40% 이내 심사가 필요합니다(기존 채무 정보는 반영하지 않음)');
+    if (inp.restricted==='예' && ['newlywed','hfjs','anshim','sgi'].includes(p.id)) why1.push('투기지역·투기과열지구 소재 시가 3억원 초과 아파트 보유자는 취급 불가(지정 이전 취득은 가능)');
+    const reasons=[...why1,...why2,...why3,...why4,...why5];
+    const ratio=p.ratio(inp), byDeposit=Math.floor(inp.deposit*ratio), cap=Math.round(p.cap(inp)); // 소수 오차(4.44*10000 등) 제거
+    const byIncome = p.incomeMult ? Math.floor(inp.income*p.incomeMult) : null;
+    const parts=[['보증금 '+Math.round(ratio*100)+'%',byDeposit],['상품 최대',cap]];
+    if (byIncome!=null) parts.push(['소득 '+p.incomeMult+'배',byIncome]);
+    const calcNotes=[];
+    if (p.id==='anshim') { // 담보 한도 참고 계산: 주택가액(시세 우선, 공시가격은 ×140%) × 90% − 선순위. 기준 확인 필요
+      if (inp.refPrice>0) {
+        const isOfficial=inp.priceType==='공시가격', sen=inp.senior||0;
+        const H=isOfficial?Math.round(inp.refPrice*1.4):inp.refPrice, cap90=Math.floor(H*0.9), by=Math.max(0,cap90-sen);
+        calcNotes.push(`주택가액 ${man(H)} (${isOfficial?'공시가격 '+man(inp.refPrice)+' × 140%':inp.priceType}) × 90% = ${man(cap90)}`);
+        if (sen>0) calcNotes.push(`선순위 ${man(sen)} 차감 후 담보 한도 ${man(by)}`);
+        parts.push(['주택가액 90%−선순위',by]);
+        if (by<=0) reasons.push('선순위 채권이 주택가액의 90% 이상이라 보증이 어렵습니다(참고 계산)');
+        else if (inp.deposit+sen>cap90) warns.push(`보증금과 선순위 합계(${man(inp.deposit+sen)})가 주택가액 90%(${man(cap90)})를 넘어 한도 감액·거절 가능(참고 계산). 소득 중심의 HF 주택신보를 대안으로 검토`);
+        if (sen>H*0.6) warns.push('선순위채권이 주택가액의 60%를 넘습니다(HUG 공식 안내 기준, 참고 계산)');
+      } else warns.push('주택 기준가격(시세 또는 공시가격)을 입력하면 담보 한도를 계산합니다. 입력 전에는 보증금·상품 한도 기준으로만 표시됩니다');
+    }
+    if (inp.houseType==='단독다가구' && tv.startsWith('warn:') && !(inp.senior>0)) warns.push('선순위 타 임차보증금 합계가 입력되지 않았습니다');
+    const bind = parts.reduce((a,b)=>b[1]<a[1]?b:a);
+    return { id:p.id, name:p.name, guarantor:p.guarantor, eligible:reasons.length===0, warns, reasons, notes:p.notes, calcNotes,
+      limit:bind[1], bindLabel:bind[0], calc:parts.map(x=>x[0]+' '+eok(x[1])).join(' · ') };
+  });
+}
+
+function stamp(loan){ return loan>=E*10 ? '15만원' : loan>=E*5 ? '7만원' : '없음'; }
+
+// 화면 연결
+if (typeof document !== 'undefined') {
+  const $ = id => document.getElementById(id);
+  const el = (tag, cls, txt) => { const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; };
+  const num = (id, label, {min=null, required=true}={}) => {
+    const input=$(id), raw=input.value.replace(/,/g,'').trim(), err=$('e-'+id); let msg='';
+    const v=Number(raw);
+    if (raw==='' ) msg=required?`${label}을 입력하세요`:'';
+    else if (!Number.isFinite(v)) msg='숫자만 입력하세요';
+    else if (min!==null && v<min) msg=`${min} 이상으로 입력하세요`;
+    err.textContent=msg; input.setAttribute('aria-invalid', msg?'true':'false');
+    return msg?null:v;
+  };
+  const syncResid = () => { $('f-resid').hidden = $('houseType').value !== '오피스텔'; $('f-restricted').hidden = $('housingStatus').value !== '1주택'; };
+  $('houseType').addEventListener('change', syncResid); $('housingStatus').addEventListener('change', syncResid); syncResid();
+  $('asOf').textContent = `기준일 ${META.asOf} · ${META.verified ? '원문 대조 완료.' : '원문 대조 전, 확인 필요.'}`;
+  const mb=$('metaBox'), ms=el('ul'); META.sources.forEach(t=>ms.append(el('li',null,t)));
+  const mc=el('ul'); META.changelog.forEach(([d,t])=>mc.append(el('li',null,`[${d}] ${t}`)));
+  mb.append(el('h4',null,'참고한 자료'), ms, el('h4',null,'변경 이력'), mc);
+  document.querySelectorAll('[data-money]').forEach(i=>{
+    const fmt=()=>{ const neg=i.value.trim().startsWith('-'), d=i.value.replace(/\D/g,''); i.value=(neg?'-':'')+(d===''?'':Number(d).toLocaleString('ko-KR')); };
+    i.addEventListener('input',fmt); fmt();
+  });
+  $('form').addEventListener('submit', ev=>{
+    ev.preventDefault();
+    const income=num('annualIncome','연소득',{min:0}), assets=num('netAssets','순자산'), deposit=num('jeonseDeposit','보증금',{min:1}), area=num('area','전용면적',{min:1});
+    const refPrice=num('refPrice','기준가격',{min:0,required:false}), senior=num('seniorDebt','선순위 채권',{min:0,required:false});
+    if ([income,assets,deposit,area].includes(null) || (refPrice===null&&$('refPrice').value.trim()!=='') || (senior===null&&$('seniorDebt').value.trim()!=='')) return;
+    const priceType=$('priceType').value;
+    if (refPrice>0 && !priceType) { $('e-refPrice').textContent='기준가격 종류를 선택하세요'; $('refPrice').setAttribute('aria-invalid','true'); return; }
+    const inp={ housing:$('housingStatus').value, marital:$('maritalStatus').value, newborn:$('newbornStatus').value, region:$('region').value, income, assets, deposit,
+      houseType:$('houseType').value, area, eupmyeon:$('eupmyeon').value, residential:$('residential').value, refPrice:refPrice||0, priceType, senior:senior||0,
+      youth:$('youth').value, restricted:$('housingStatus').value==='1주택'?$('restricted').value:'아니오' };
+    const res=evaluate(inp).sort((a,b)=>(b.eligible-a.eligible)||(b.limit-a.limit));
+    const name=$('custName').value.trim()||'손님';
+    const ok=res.filter(r=>r.eligible), sum=$('summary'); sum.textContent='';
+    const best=el('div','best'+(ok.length?'':' none'));
+    if (ok.length){
+      best.append(el('small',null,`${name}님 최대 예상한도`), el('div','big',eok(ok[0].limit)), el('span',null,`${ok[0].name} · 적격 ${ok.length}개 상품 · 인지세(대출금 기준) ${stamp(ok[0].limit)}`));
+    } else {
+      best.append(el('small',null,`${name}님`), el('div','big','적격 상품 없음'), el('span',null,'아래 사유를 확인하고 입력 정보를 다시 점검하세요.'));
+    }
+    sum.append(best);
+    const status = r => r.eligible ? (r.warns.length ? ['warn','조건부'] : ['ok','적격']) : ['no','부적격'];
+    const listBlock = (title, items, cls) => { const d=el('div'); d.append(el('h4',null,title)); const ul=el('ul'); items.forEach(t=>ul.append(el('li',cls,t))); d.append(ul); return d; };
+    const pressedCard = document.querySelector('.card[aria-pressed="true"]');
+    const prevId = pressedCard ? pressedCard.dataset.id : undefined;
+    const cardsEl=$('cards'), detail=$('detail'); cardsEl.textContent='';
+    const showDetail = r => {
+      cardsEl.querySelectorAll('.card').forEach(c=>c.setAttribute('aria-pressed', String(c.dataset.id===r.id)));
+      const [sc,sl]=status(r); detail.textContent=''; detail.hidden=false;
+      const h=el('h3',null,r.name); h.append(el('span','pill '+sc,sl)); detail.append(h);
+      detail.append(el('div','calc',`보증기관 ${r.guarantor}`));
+      if (r.eligible) { const d=el('div'); d.append(el('h4',null,'예상 한도 산출')); d.append(el('b',null,eok(r.limit)+' (한도 결정: '+r.bindLabel+')')); d.append(el('span','calc',r.calc)); detail.append(d); }
+      else detail.append(listBlock('부적격 사유', r.reasons));
+      if (r.calcNotes.length) detail.append(listBlock('기준가격 계산 (참고, 기준 확인 필요)', r.calcNotes));
+      if (r.eligible && r.warns.length) detail.append(listBlock('확인 필요', r.warns, 'warnli'));
+      detail.append(listBlock('상품 특이사항', r.notes));
+      const docsBox = el('div'); docsBox.id = 'docsBox'; detail.append(docsBox);
+      docCtx = { r: r, inp: inp }; renderDocs();
+    };
+    res.forEach(r=>{
+      const [sc,sl]=status(r);
+      const b=el('button','card'+(r.eligible?'':' ineligible')); b.type='button'; b.dataset.id=r.id; b.setAttribute('aria-pressed','false'); b.setAttribute('aria-controls','detail');
+      const top=el('div','top'); const left=el('div'); left.append(el('div','nm',r.name), el('div','gr',r.guarantor));
+      top.append(left, el('span','pill '+sc,sl)); b.append(top);
+      b.append(el('div','lim', r.eligible?eok(r.limit):'-'));
+      b.append(el('span','gr', r.eligible?`한도 결정: ${r.bindLabel}`:(r.reasons[0]||'')));
+      b.append(el('span','more','특이사항 보기 ▾'));
+      b.addEventListener('click',()=>showDetail(r));
+      cardsEl.append(b);
+    });
+    showDetail(res.find(r=>r.id===prevId)||res[0]);
+    buildSheet(inp,res,name);
+  });
+
+  // 인쇄용 상담 결과지와 복사용 텍스트
+  const DISCLAIMER='본 판정 결과는 입력하신 기초 정보(소득, 자산, 주택수 등)를 바탕으로 계산된 예상 결과입니다. 실제 대출 가능 여부, 최종 한도와 금리는 임차목적물의 권리침해 여부(근저당 설정 등), 건물 시세 감정, 개인신용평점(CSS), 보증기관(HF·HUG·SGI)의 최종 승인 결과에 따라 달라질 수 있습니다.';
+  let lastText='';
+  const sheetData = (inp,res,name) => {
+    const info=[['주택 보유 수',inp.housing],['혼인 상태',inp.marital],['2년 이내 출산·입양',inp.newborn],['부부합산 연소득',man(inp.income)],['부부합산 순자산',man(inp.assets)],['임차주택 소재지',inp.region],['임차 보증금',man(inp.deposit)],['주택 유형',`${inp.houseType} / ${inp.area}㎡${inp.eupmyeon==='예'?' (읍·면)':''}`]];
+    if (inp.youth==='예') info.push(['청년가구','해당']);
+    if (inp.restricted==='예') info.push(['규제지역 3억 초과 아파트 보유','예']);
+    if (inp.refPrice) info.push(['주택 기준가격',`${inp.priceType} ${man(inp.refPrice)}`]);
+    if (inp.senior) info.push(['선순위 채권·타 임차보증금',man(inp.senior)]);
+    const rows=res.map(r=>{
+      const st=r.eligible?(r.warns.length?'조건부':'적격'):'부적격';
+      const notes=r.eligible?[...r.warns.map(w=>'확인: '+w),...r.calcNotes.map(w=>'산출: '+w),...r.notes]:[...r.reasons.map(w=>'사유: '+w),...r.calcNotes.map(w=>'산출: '+w),...r.notes];
+      return { name:r.name, g:r.guarantor, st, limit:r.eligible?man(r.limit):'-', calc:r.eligible?`한도 결정: ${r.bindLabel} (${r.calc})`:'', notes };
+    });
+    return { info, rows, date:new Date().toLocaleDateString('ko-KR'), name };
+  };
+  const buildSheet = (inp,res,name) => {
+    const d=sheetData(inp,res,name), sh=$('printSheet'); sh.textContent='';
+    sh.append(el('h2',null,'전세자금대출 상담 결과'), el('p',null,`상담일 ${d.date} · 손님 ${d.name} · 기준일 ${META.asOf}${META.verified?'':' (원문 대조 전)'}`));
+    const t1=el('table'); t1.append(Object.assign(el('caption'),{textContent:'입력 정보'}));
+    d.info.forEach(([k,v])=>{ const tr=el('tr'); const th=el('th',null,k); th.scope='row'; tr.append(th, el('td',null,v)); t1.append(tr); });
+    sh.append(t1);
+    const t2=el('table'), hr=el('tr'); ['상품명','보증기관','판정','예상 한도','사유·확인·특이사항'].forEach(h=>{const th=el('th',null,h); th.scope='col'; hr.append(th);}); const thead=el('thead'); thead.append(hr); t2.append(thead);
+    const tb=el('tbody'); d.rows.forEach(r=>{
+      const tr=el('tr'); tr.append(el('td',null,r.name), el('td',null,r.g), el('td',null,r.st));
+      const tl=el('td'); tl.append(el('b',null,r.limit)); if (r.calc) tl.append(el('div','calc',r.calc)); tr.append(tl);
+      const tn=el('td'), ul=el('ul'); r.notes.forEach(n=>ul.append(el('li',null,n))); tn.append(ul); tr.append(tn); tb.append(tr);
+    }); t2.append(tb); sh.append(t2, el('p','calc',DISCLAIMER));
+    const L=['전세자금대출 상담 결과',`상담일 ${d.date} / 손님 ${d.name} / 기준일 ${META.asOf}`,'','[입력 정보]',...d.info.map(([k,v])=>`- ${k}: ${v}`),'','[상품별 결과]'];
+    d.rows.forEach(r=>{ L.push(`■ ${r.name} (${r.g}) - ${r.st}, 예상 한도 ${r.limit}`); if (r.calc) L.push('  '+r.calc); r.notes.forEach(n=>L.push('  · '+n)); });
+    L.push('', DISCLAIMER); lastText=L.join('\n');
+    $('copyBtn').hidden=false; $('printHint').hidden=false; $('copyMsg').textContent=''; $('copyFb').hidden=true;
+  };
+  // 징구서류 목록 (엑셀 목록표 기준, 상품 카드를 선택하면 표시)
+  var docMode = 'new', docOnlyReq = false, docCtx = null;
+  const DOC_MODES = { new: '신규', ext: '연장' };
+  const DOC_HINTS = [
+    [i => i.houseType === '미등기', /사용승인서|분양계약서|분양대금/, '미등기 주택'],
+    [i => i.houseType === '오피스텔' || i.houseType === '단독다가구', /출장복명서/, '오피스텔·단독·다가구'],
+    [i => i.marital === '예비신혼', /결혼[예에]정자/, '결혼예정자'],
+    [i => i.marital === '신혼부부' || i.marital === '일반', /혼인관계증명서/, '혼인 가구'],
+    [i => i.restricted === '예', /규제대상/, '규제지역 아파트 보유'],
+  ];
+  const docHint = (d, inp) => { for (var k = 0; k < DOC_HINTS.length; k++) if (DOC_HINTS[k][0](inp) && DOC_HINTS[k][1].test(d.name)) return DOC_HINTS[k][2]; return ''; };
+  const isReq = d => d.req.indexOf('필수') === 0;
+  const renderDocs = () => {
+    const box = $('docsBox'), pr = $('docsPrint'); if (!box || !docCtx) return;
+    box.textContent = ''; pr.textContent = '';
+    const r = docCtx.r, inp = docCtx.inp, pd = DOCS[r.id];
+    box.append(el('h4', null, '필요 징구 서류'));
+    if (!pd) { box.append(el('p', 'hint', '징구서류 목록표(' + (DOCS_META.source || '') + ')에 이 상품의 시트가 없습니다. 영업점 서류 기준을 확인하세요.')); return; }
+    const modes = Object.keys(DOC_MODES).filter(m => pd.sheets[m]);
+    if (!pd.sheets[docMode]) docMode = modes[0];
+    const sh = pd.sheets[docMode];
+    const bar = el('div', 'toolbar');
+    modes.forEach(m => { const b = el('button', 'sbtn', DOC_MODES[m]); b.type = 'button'; b.setAttribute('aria-pressed', String(m === docMode)); b.addEventListener('click', () => { docMode = m; renderDocs(); }); bar.append(b); });
+    const lab = el('label', 'dchk'); const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = docOnlyReq; cb.id = 'docOnlyReq';
+    cb.addEventListener('change', () => { docOnlyReq = cb.checked; renderDocs(); }); lab.append(cb, ' 필수 서류만 보기'); bar.append(lab);
+    box.append(bar);
+    const reqN = sh.items.filter(isReq).length;
+    box.append(el('p', 'hint', pd.title + ' ' + DOC_MODES[docMode] + ' · 필수 ' + reqN + '건, 해당 시·택1 ' + (sh.items.length - reqN) + '건, 전체 ' + sh.items.length + '건'));
+    const items = sh.items.filter(d => !docOnlyReq || isReq(d));
+    const groups = []; items.forEach(d => { var g = groups.filter(x => x.cat === d.cat)[0]; if (!g) { g = { cat: d.cat, list: [] }; groups.push(g); } g.list.push(d); });
+    groups.forEach(g => {
+      const gd = el('div', 'dgroup'); gd.append(el('h5', null, g.cat + ' (' + g.list.length + ')'));
+      g.list.forEach(d => {
+        const row = el('div', 'drow'); const top = el('div', 'dtop');
+        top.append(el('span', 'dname', d.name));
+        top.append(el('span', 'pill ' + (isReq(d) ? 'ok' : 'warn'), d.req || '표시 없음'));
+        row.append(top);
+        const meta = []; if (d.form) meta.push('서식번호 ' + d.form); if (d.who.length) meta.push('대상: ' + d.who.join(', '));
+        if (meta.length) row.append(el('div', 'dmeta', meta.join(' · ')));
+        if (d.check) row.append(el('div', 'dmeta', d.check));
+        const hint = docHint(d, inp); if (hint) { row.classList.add('hit'); row.append(el('div', 'dhit', '이번 상담 조건에 해당할 수 있음: ' + hint)); }
+        gd.append(row);
+      });
+      box.append(gd);
+    });
+    box.append(el('p', 'hint', '출처: ' + DOCS_META.source + ' (' + sh.sheet + '). "이번 상담 조건" 표시는 입력 정보로 추정한 안내이며 해당 여부는 영업점에서 확인하세요.'));
+    // 인쇄용
+    pr.append(el('h2', null, '징구 서류 목록 · ' + pd.title + ' ' + DOC_MODES[docMode]));
+    const t = el('table'), hd = el('tr'); ['순서', '서류명', '서식번호', '필수여부', '대상', '점검사항'].forEach(h => { const th = el('th', null, h); th.scope = 'col'; hd.append(th); });
+    const thead = el('thead'); thead.append(hd); t.append(thead);
+    const tb = el('tbody'); items.forEach(d => { const tr = el('tr'); [d.no, d.name, d.form, d.req, d.who.join(', '), d.check].forEach(v => tr.append(el('td', null, v))); tb.append(tr); });
+    t.append(tb); pr.append(t, el('p', 'calc', '출처: ' + DOCS_META.source + ' (' + sh.sheet + ')'));
+  };
+  $('copyBtn').addEventListener('click',()=>{
+    const msg=$('copyMsg'), fb=$('copyFb');
+    const fallback=()=>{ fb.value=lastText; fb.hidden=false; fb.focus(); fb.select(); msg.textContent='자동 복사가 막혀 있어 아래 내용을 선택해 두었습니다. 직접 복사하세요(Ctrl+C).'; };
+    try { navigator.clipboard.writeText(lastText).then(()=>{ msg.textContent='결과를 복사했습니다.'; fb.hidden=true; }, fallback); } catch (e) { fallback(); }
+  });
+}
+if (typeof window !== 'undefined') window.__jeonseReady = true;
+</script>
+<script>
+/* ES5: 위 스크립트가 해석·실행되지 않으면(구형 브라우저, 차단) 안내 문구를 보여줍니다 */
+(function () {
+  if (!window.__jeonseReady) { var n = document.getElementById('scriptWarn'); if (n) { n.removeAttribute('hidden'); n.style.display = 'block'; } }
+})();
+</script>
+
+</body>
+</html>

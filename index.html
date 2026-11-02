@@ -67,6 +67,10 @@ button.go:hover{filter:brightness(1.06)}
 .detail ul{margin:0;padding-left:18px}
 #docsBox{border-top:1px dashed var(--line);padding-top:12px}
 #docsBox>h4{font-size:15px;color:var(--fg)}
+.docsdet{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.docsdet>summary{cursor:pointer;padding:10px 14px;font-family:var(--font-m);color:var(--teal);min-height:44px}
+.docsdet>summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:8px}
+.docsdet .docsbody{padding:0 14px 12px}
 .dchk{display:inline-flex;align-items:center;gap:6px;font-size:14px;min-height:40px;cursor:pointer}
 .dgroup{margin:10px 0 4px}
 .dgroup h5{margin:0 0 6px;font-family:var(--font-m);font-weight:500;font-size:13.5px;color:var(--teal)}
@@ -625,7 +629,7 @@ if (typeof document !== 'undefined') {
       if (r.eligible && r.warns.length) detail.append(listBlock('확인 필요', r.warns, 'warnli'));
       detail.append(listBlock('상품 특이사항', r.notes));
       const docsBox = el('div'); docsBox.id = 'docsBox'; detail.append(docsBox);
-      docCtx = { r: r, inp: inp }; renderDocs();
+      docsOpen = false; docCtx = { r: r, inp: inp }; renderDocs();
     };
     res.forEach(r=>{
       const [sc,sl]=status(r);
@@ -685,7 +689,7 @@ if (typeof document !== 'undefined') {
     $('copyBtn').hidden=false; $('printHint').hidden=false; $('copyMsg').textContent=''; $('copyFb').hidden=true;
   };
   // 징구서류 목록 (엑셀 목록표 기준, 상품 카드를 선택하면 표시)
-  var docMode = 'new', docOnlyReq = false, docCtx = null;
+  var docMode = 'new', docOnlyReq = false, docCtx = null, docsOpen = false;
   const DOC_MODES = { new: '신규', ext: '연장' };
   const DOC_HINTS = [
     [i => i.houseType === '미등기', /사용승인서|분양계약서|분양대금/, '미등기 주택'],
@@ -700,8 +704,8 @@ if (typeof document !== 'undefined') {
     const box = $('docsBox'), pr = $('docsPrint'); if (!box || !docCtx) return;
     box.textContent = ''; pr.textContent = '';
     const r = docCtx.r, inp = docCtx.inp, pd = DOCS[r.id];
-    box.append(el('h4', null, '필요 징구 서류'));
-    if (!pd) { box.append(el('p', 'hint', '징구서류 목록표(' + (DOCS_META.source || '') + ')에 이 상품의 시트가 없습니다. 영업점 서류 기준을 확인하세요.')); return; }
+    const body = el('div', 'docsbody');
+    if (!pd) { box.append(el('h4', null, '필요 징구 서류')); box.append(el('p', 'hint', '징구서류 목록표('+ (DOCS_META.source || '') + ')에 이 상품의 시트가 없습니다. 영업점 서류 기준을 확인하세요.')); return; }
     const modes = Object.keys(DOC_MODES).filter(m => pd.sheets[m]);
     if (!pd.sheets[docMode]) docMode = modes[0];
     const sh = pd.sheets[docMode];
@@ -709,9 +713,9 @@ if (typeof document !== 'undefined') {
     modes.forEach(m => { const b = el('button', 'sbtn', DOC_MODES[m]); b.type = 'button'; b.setAttribute('aria-pressed', String(m === docMode)); b.addEventListener('click', () => { docMode = m; renderDocs(); }); bar.append(b); });
     const lab = el('label', 'dchk'); const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = docOnlyReq; cb.id = 'docOnlyReq';
     cb.addEventListener('change', () => { docOnlyReq = cb.checked; renderDocs(); }); lab.append(cb, ' 필수 서류만 보기'); bar.append(lab);
-    box.append(bar);
+    body.append(bar);
     const reqN = sh.items.filter(isReq).length;
-    box.append(el('p', 'hint', pd.title + ' ' + DOC_MODES[docMode] + ' · 필수 ' + reqN + '건, 해당 시·택1 ' + (sh.items.length - reqN) + '건, 전체 ' + sh.items.length + '건'));
+    body.append(el('p', 'hint', pd.title + ' ' + DOC_MODES[docMode] + ' · 필수 ' + reqN + '건, 해당 시·택1 ' + (sh.items.length - reqN) + '건, 전체 ' + sh.items.length + '건'));
     const items = sh.items.filter(d => !docOnlyReq || isReq(d));
     const groups = []; items.forEach(d => { var g = groups.filter(x => x.cat === d.cat)[0]; if (!g) { g = { cat: d.cat, list: [] }; groups.push(g); } g.list.push(d); });
     groups.forEach(g => {
@@ -727,9 +731,14 @@ if (typeof document !== 'undefined') {
         const hint = docHint(d, inp); if (hint) { row.classList.add('hit'); row.append(el('div', 'dhit', '이번 상담 조건에 해당할 수 있음: ' + hint)); }
         gd.append(row);
       });
-      box.append(gd);
+      body.append(gd);
     });
-    box.append(el('p', 'hint', '출처: ' + DOCS_META.source + ' (' + sh.sheet + '). "이번 상담 조건" 표시는 입력 정보로 추정한 안내이며 해당 여부는 영업점에서 확인하세요.'));
+    body.append(el('p', 'hint', '출처: ' + DOCS_META.source + ' (' + sh.sheet + '). "이번 상담 조건" 표시는 입력 정보로 추정한 안내이며 해당 여부는 영업점에서 확인하세요.'));
+    // 펼쳤을 때만 서류 목록을 보여줌 (카드를 바꾸면 접힘, 신규·연장·필터 전환 시에는 펼친 상태 유지)
+    const det = el('details', 'docsdet'); det.open = docsOpen;
+    det.append(el('summary', null, '필요 징구 서류 보기 · ' + DOC_MODES[docMode] + ' (필수 ' + reqN + '건, 전체 ' + sh.items.length + '건)'), body);
+    det.addEventListener('toggle', () => { docsOpen = det.open; });
+    box.append(det);
     // 인쇄용
     pr.append(el('h2', null, '징구 서류 목록 · ' + pd.title + ' ' + DOC_MODES[docMode]));
     const t = el('table'), hd = el('tr'); ['순서', '서류명', '서식번호', '필수여부', '대상', '점검사항'].forEach(h => { const th = el('th', null, h); th.scope = 'col'; hd.append(th); });

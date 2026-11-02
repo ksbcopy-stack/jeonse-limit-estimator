@@ -202,6 +202,22 @@ details ul{color:var(--muted);font-size:14px;padding-left:18px}
         <select id="seoul"><option value="아니오" selected>아니오</option><option value="예">예 (서울시 관내)</option></select><p class="hint">수도권을 선택했을 때 확인합니다. 서울시 협약 대출에 사용합니다.</p></div>
       <div class="field"><label for="allHomeless">세대원 전원 무주택</label>
         <select id="allHomeless"><option value="예" selected>예</option><option value="아니오">아니오</option></select><p class="hint">주택도시기금 버팀목 계열 대출의 요건입니다.</p></div>
+      <div class="field"><label for="contractDate">계약 체결일 (선택)</label>
+        <input type="text" id="contractDate" inputmode="numeric" autocomplete="off" placeholder="예: 2026-11-02"><p class="err" id="e-contractDate"></p><p class="hint">기본은 오늘입니다. 이미 체결한 계약이면 그 날짜를 넣으세요. 버팀목 한도(25.6.27), 1주택 한도(25.9.7), 수도권 DSR 안내(25.10.29)가 계약일에 따라 달라집니다.</p></div>
+      <div class="field"><label for="renewal">신규·갱신 구분</label>
+        <select id="renewal"><option value="신규" selected>신규 계약</option><option value="갱신">갱신 계약</option></select><p class="hint">한도는 신규 기준으로 계산합니다. 갱신을 고르면 확인 안내가 붙고 징구서류는 연장 목록이 먼저 열립니다.</p></div>
+      <div class="field" id="f-marriage"><label for="marriageDate">혼인신고일 (선택)</label>
+        <input type="text" id="marriageDate" inputmode="numeric" autocomplete="off" placeholder="예: 2022-05-10"><p class="err" id="e-marriageDate"></p><p class="hint">신혼부부를 선택했을 때만 표시됩니다. 연령 기준일 기준 7년 이내인지 날짜로 판정합니다.</p></div>
+      <div class="field"><label for="childBirth">가장 어린 자녀 출생·입양일 (선택)</label>
+        <input type="text" id="childBirth" inputmode="numeric" autocomplete="off" placeholder="예: 2025-03-20"><p class="err" id="e-childBirth"></p><p class="hint">입력하면 연령 기준일 기준 2년 미만 여부로 출산·입양 해당 여부를 정합니다(위 선택보다 우선).</p></div>
+      <div class="field"><label for="soloHead">만 25세 미만 단독세대주</label>
+        <select id="soloHead"><option value="아니오" selected>아니오</option><option value="예">예</option></select><p class="hint">청년전용 버팀목의 한도(1.2억원)와 면적(60㎡ 이하)에 사용합니다.</p></div>
+      <div class="field"><label for="serviceMonths">병역 이행 기간 (개월, 선택)</label>
+        <input type="text" id="serviceMonths" inputmode="numeric" autocomplete="off" placeholder="예: 21"><p class="err" id="e-serviceMonths"></p><p class="hint">청년전용 버팀목 연령(만 34세)이 이행 기간만큼 최대 만 39세까지 늘어납니다.</p></div>
+      <div class="field"><label for="emp1y">재직기간 1년 이상 근로소득자</label>
+        <select id="emp1y"><option value="예" selected>예 또는 해당 없음</option><option value="아니오">아니오</option></select><p class="hint">다둥이전세론 요건입니다(하나은행 공시 2020년 기준).</p></div>
+      <div class="field"><label for="military">국방부 전세대출 추천 군인</label>
+        <select id="military"><option value="아니오" selected>아니오</option><option value="예">예</option></select><p class="hint">군간부 전세자금대출 대상 여부입니다.</p></div>
       <div class="field"><label for="youth">청년가구 해당 여부</label>
         <select id="youth"><option value="아니오" selected>해당 없음</option><option value="예">해당 (전세금안심 청년 우대)</option></select></div>
       <div class="field" id="f-restricted"><label for="restricted">보유 주택이 규제지역 3억 초과 아파트</label>
@@ -254,6 +270,8 @@ details ul{color:var(--muted);font-size:14px;padding-left:18px}
         <li>전세금안심 한도: 일반 수도권 4억원·지방 3.2억원, 신혼·청년가구 수도권 4.5억원·지방 3.6억원(보증금 90%)</li>
         <li>투기지역·투기과열지구 소재 시가 3억원 초과 아파트 보유자(1주택)는 신혼부부전세론·주택신보·전세금안심·우량주택전세론 취급 불가</li>
         <li>일반 버팀목: 보증금 대비 비율 일반 70%·신혼 및 2자녀 이상 80%, 한도 일반 수도권 1.2억·지방 8천만원, 신혼·2자녀 이상 수도권 2.5억·지방 1.6억(25.6.27 이후 계약), 세대원 전원 무주택</li>
+        <li>한도는 신규 계약 기준입니다. 계약 체결일(기본 오늘)로 25.6.27 이전·이후 버팀목 한도와 25.9.7 이전·이후 1주택 한도를 구분하고, 갱신 계약은 확인 안내만 붙입니다.</li>
+        <li>혼인신고일과 자녀 출생·입양일을 입력하면 혼인 7년 이내, 출산·입양 2년 미만을 날짜로 판정하며, 병역 이행 기간은 청년전용 버팀목 연령 상한을 최대 만 39세까지 늘립니다.</li>
         <li>신혼부부전용·청년전용 버팀목, 서울시 신혼부부·청년 이자지원 대출, 다둥이전세론은 연령·자녀 수·서울 소재 여부 등 추가 입력으로 판정(이자지원금리는 한도에 반영하지 않음)</li>
         <li>혼인 7년 이내는 혼인신고일, 신생아 2년 이내는 출생·입양일 기준 (입력 시 손님 확인 필요)</li>
         <li>인지세: 5천만원 이하 없음, 5천만~1억원 7만원, 1억~10억원 15만원 (은행·손님 반반 부담)</li>
@@ -291,6 +309,9 @@ const META = {
     '가계여신, 가계대출 상품설명서, 대출거래약정서 (정리 자료 기준)',
   ],
   changelog: [
+    ['2026.11', '계약 체결일 입력 추가(버팀목 한도 25.6.27, 1주택 한도 25.9.7, 수도권 DSR 안내 25.10.29 기준), 신규·갱신 구분 추가(한도는 신규 기준, 갱신은 확인 안내와 연장 징구서류)'],
+    ['2026.11', '만 25세 미만 단독세대주, 병역 이행 기간, 혼인신고일, 자녀 출생·입양일, 재직 1년 이상, 국방부 추천 군인 입력 추가'],
+    ['2026.11', '하나은행 고정금리 전세자금대출, 군간부 전세자금대출(기본) 추가 (총 13개 상품)'],
     ['2026.11', '주택도시기금 공식 안내 대조: 일반 버팀목 보증금 대비 비율(일반 70%, 신혼·2자녀 80%)과 신혼·2자녀 한도(수도권 2.5억·지방 1.6억), 2자녀 소득 6천만원 반영, 세대원 전원 무주택 입력 추가'],
     ['2026.11', '신혼부부전용 버팀목전세, 청년전용 버팀목전세 추가 (미성년 자녀 수, 신청인 만 나이, 신청인 본인 연소득 입력 추가)'],
     ['2026.11', '서울시 신혼부부·청년 임차보증금 이자지원 대출 추가(서울시 공고, 서울주거포털, 하나은행 공시), 서울시 소재 주택 입력 추가'],
@@ -317,6 +338,10 @@ const DOCS = {"hfjs":{"title":"주택신보 전세자금대출","sheets":{"new":
 // 상품 기준표 (금액 단위: 만원)
 const E = 10000;
 const isNH = i => i.marital==='신혼부부'||i.marital==='예비신혼';
+// 계약 체결일 기준 (미입력이면 이후 계약으로 봄): 버팀목 한도 25.6.27, 1주택 한도 25.9.7, 수도권 DSR 25.10.29
+const post627 = i => !i.contractDate || i.contractDate >= '2025-06-27';
+const post907 = i => !i.contractDate || i.contractDate >= '2025-09-07';
+const post1029 = i => !i.contractDate || i.contractDate >= '2025-10-29';
 const PRODUCTS = [
   { id:'newborn', name:'신생아 특례 버팀목', guarantor:'HUG / HF', housing:['무주택'], needNewborn:true, fund:true,
     incomeMax:()=>1.3*E, assetMax:3.45*E, depositMax:r=>r==='수도권'?5*E:4*E, ratio:()=>0.8, cap:()=>3*E, incomeMult:null,
@@ -326,33 +351,41 @@ const PRODUCTS = [
     incomeMax:i=>isNH(i)?0.75*E:(i.children>=2?0.6*E:0.5*E), assetMax:3.45*E,
     depositMax:(r,i)=>{const w=isNH(i)||i.children>=2; return r==='수도권'?(w?4:3)*E:(w?3:2)*E;},
     ratio:i=>(isNH(i)||i.children>=2)?0.8:0.7, incomeMult:null,
-    cap:i=>{const w=isNH(i)||i.children>=2; return i.region==='수도권'?(w?2.5:1.2)*E:(w?1.6:0.8)*E;},
+    cap:i=>{const w=isNH(i)||i.children>=2, p=post627(i); return i.region==='수도권'?(w?(p?2.5:3):1.2)*E:(w?(p?1.6:2):0.8)*E;},
     notes:['소득 상한: 일반 5천만원, 2자녀 이상 6천만원, 신혼부부 7,500만원','보증금 대비 비율: 일반 70%, 신혼·2자녀 이상 80%','한도(25.6.27 이후 계약): 일반 수도권 1.2억·지방 8천만원, 신혼·2자녀 이상 수도권 2.5억·지방 1.6억 (이전 계약은 3억·2억)','전용 85㎡ 이하(읍·면 100㎡), 세대원 전원 무주택','변동금리 연 2.5~3.5%, 지방 소재 0.2%p 인하','사후 자산 초과 시 가산금리'] },
   { id:'newlywedFund', name:'신혼부부전용 버팀목전세', guarantor:'HUG / HF', housing:['무주택'], fund:true, marital:['신혼부부','예비신혼'],
     incomeMax:i=>(i.ownIncome>0&&i.ownIncome<=0.5*E)?Infinity:0.75*E, assetMax:3.45*E,
-    depositMax:r=>r==='수도권'?4*E:3*E, ratio:()=>0.8, cap:i=>i.region==='수도권'?2.5*E:1.6*E, incomeMult:null,
+    depositMax:r=>r==='수도권'?4*E:3*E, ratio:()=>0.8, cap:i=>i.region==='수도권'?(post627(i)?2.5:3)*E:(post627(i)?1.6:2)*E, incomeMult:null,
     notes:['소득: 부부합산 7,500만원 이하(합산이 넘어도 신청인 소득이 5천만원 이하이면 가능, 최초 신규 시 금리 0.3%p 가산)','한도(25.6.27 이후 계약): 수도권 2.5억원·지방 1.6억원, 보증금 80% 이내 (이전 계약은 3억·2억)','혼인 7년 이내(재혼은 최초 혼인일 기준) 또는 3개월 이내 결혼예정, 세대원 전원 무주택','변동금리 연 1.9~3.3%, 자녀 우대 0.3~0.7%p','전용 85㎡ 이하(읍·면 100㎡)'] },
-  { id:'youthFund', name:'청년전용 버팀목전세', guarantor:'HUG / HF', housing:['무주택'], fund:true, ageRange:[19,34], ageNote:'만 19~34세 세대주(병역 이행 기간만큼 최대 만 39세까지 연장 가능)',
+  { id:'youthFund', name:'청년전용 버팀목전세', guarantor:'HUG / HF', housing:['무주택'], fund:true, ageRange:[19,34], serviceExtend:39, ageNote:'만 19~34세 세대주(병역 이행 기간만큼 최대 만 39세까지 연장 가능)',
     incomeMax:i=>isNH(i)?0.75*E:(i.children>=2?0.6*E:0.5*E), assetMax:3.45*E,
-    depositMax:()=>3*E, ratio:()=>0.8, cap:()=>1.5*E, incomeMult:null,
+    depositMax:()=>3*E, ratio:()=>0.8, cap:i=>{const solo=i.soloHead==='예'; return post627(i)?(solo?1.2:1.5)*E:(solo?1.5:2)*E;}, incomeMult:null,
     notes:['한도(25.6.27 이후 계약) 1.5억원, 만 25세 미만 단독세대주 1.2억원(이전 계약은 2억·1.5억)','보증금 3억원 이하(지역 구분 없음), 전용 85㎡ 이하(만 25세 미만 단독세대주는 60㎡ 이하)','소득: 부부합산 5천만원 이하(2자녀 6천만원, 신혼 7,500만원), 세대원 전원 무주택','변동금리, 소득 구간별 연 2.2~3.3%, 지방 소재 0.2%p 인하'] },
   { id:'newlywed', name:'하나은행 신혼부부전세론', guarantor:'한국주택금융공사(HF)', housing:['무주택','1주택'],
     marital:['신혼부부','예비신혼'], incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E,
     ratio:()=>0.9, cap:()=>2*E, incomeMult:4.5,
     notes:['한도: 보증금 90%, 최대 2억원, 연소득(배우자 포함) 4.5배 중 적은 금액 (하나은행 공시 기준일 2026.01.02)','전세·반전세 계약 모두 가능, 보증금 5% 이상 지급한 만 19세 이상 세대주','대출 신청: 전입일 또는 잔금일 중 빠른 날부터 3개월 이내, 대출기간 계약만기 범위 최장 2년(최대 20년 연장)','중도상환해약금 0.59%(2026.01.02 변경)','임대인 동의 불필요, DSR 심사 연동'] },
-  { id:'daduengi', name:'다둥이전세론', guarantor:'한국주택금융공사(HF)', housing:['무주택'], minChildren:2,
+  { id:'daduengi', name:'다둥이전세론', guarantor:'한국주택금융공사(HF)', housing:['무주택'], minChildren:2, needEmployed:true,
     incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E, ratio:()=>0.9, cap:()=>2*E, incomeMult:4.5,
     notes:['미성년 자녀(만 19세 미만) 2명 이상 가구(태아 포함 여부는 하나은행 공시 확인 필요)','한도: 보증금 90%, 최대 2억원, 소득 4.5배(모바일 취급 기준)','보증금 상한은 2026.7 비교표 기준(7억, 지방 5억). 하나은행 모바일 공시(2020년 기준)에는 5억·3억으로 적혀 있어 확인 필요','재직기간 1년 이상 근로소득자 요건이 공시에 있음(2020년 기준)'] },
   { id:'hfjs', name:'주택신보 전세자금대출', guarantor:'한국주택금융공사(HF)', housing:['무주택','1주택'],
-    incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E, ratio:()=>0.8, cap:i=>i.housing==='1주택'?(i.region==='수도권'?2*E:2.22*E):4.44*E, incomeMult:4.5,
+    incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E, ratio:()=>0.8, cap:i=>i.housing==='1주택'?((i.region==='수도권'&&post907(i))?2*E:2.22*E):4.44*E, incomeMult:4.5,
     notes:['1주택자 한도 2.22억원, 25.9.7 이후 수도권 계약은 2억원','보증료 연 0.02~0.20%(손님 부담)','미등기·법인 임대인 가능, 연간 금융비용부담율 40% 이내','소득 4.5배는 2026.7 비교표에서 확인되지 않음, 확인 필요','수도권 보증비율 80%(25.7.21 이후, 대출한도 비율과는 별개)'] },
   { id:'anshim', name:'전세금안심대출', guarantor:'주택도시보증공사(HUG)', housing:['무주택','1주택'],
     incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E, ratio:i=>(i.marital==='신혼부부'||i.youth==='예')?0.9:0.8,
     cap:i=>{ if (i.housing==='1주택') return 2*E; const pref=(i.marital==='신혼부부'||i.youth==='예'); return i.region==='수도권'?(pref?4.5:4)*E:(pref?3.6:3.2)*E; }, incomeMult:null,
     notes:['1주택자는 지역과 관계없이 최대 2억원','신혼·청년가구 한도 수도권 4.5억원, 지방 3.6억원 (보증금 90%)','연간 금융비용부담율 40% 이내','보증료 연 0.097~0.211% + 특약 0.031%(손님 부담), 중도상환해약금 0.59%(26.1.2)','전세금반환보증 동시 취급, 임대인 앞 채권양도 통지 필요','수도권 보증비율 80%(25.7.21 이후, 대출한도 비율과는 별개)'] },
   { id:'sgi', name:'우량주택전세론', guarantor:'SGI 서울보증보험', housing:['무주택','1주택'],
-    incomeMax:null, assetMax:null, depositMax:null, ratio:i=>i.housing==='1주택'?0.6:0.8, cap:i=>i.housing==='1주택'?(i.region==='수도권'?2*E:3*E):5*E, incomeMult:null,
+    incomeMax:null, assetMax:null, depositMax:null, ratio:i=>i.housing==='1주택'?0.6:0.8, cap:i=>i.housing==='1주택'?((i.region==='수도권'&&post907(i))?2*E:3*E):5*E, incomeMult:null,
     notes:['임대인 앞 질권설정 통지 필요, 대출 최대한도가 가장 큼','1주택자 한도 3억원(보증금 60%), 25.9.7 이후 수도권 계약은 2억원(보증금 60%)','보증료 연 0.137~0.402%(CB등급별, 은행 부담)','수도권 보증비율 80%(25.7.21 이후, 대출한도 비율과는 별개)'] },
+  { id:'fixedRate', name:'하나은행 고정금리 전세자금대출', guarantor:'한국주택금융공사(HF)', housing:['무주택'],
+    incomeMax:null, assetMax:null, depositMax:r=>r==='수도권'?7*E:5*E, ratio:()=>0.9, cap:()=>4*E, incomeMult:5,
+    alwaysWarn:['하나은행 공시의 유효기간이 2026.01.09로 표기되어 있어 최신 공시와 한도를 확인해야 합니다'],
+    notes:['한도: 보증금 90% 이내, 최고 4억원, 연소득(배우자 포함) 5.0배, 주택금융공사 상환능력별 보증한도 중 적은 금액','임차보증금 수도권 7억원·지방 5억원 초과 시 불가','무주택 임차인, 보증금 5% 이상 지급한 만 19세 이상 세대주, 미등기 주택 가능','하나은행 홈페이지 공시(2024.01.12 변경, 유효기간 2026.01.09 표기)'] },
+  { id:'military', name:'군간부 전세자금대출(기본)', guarantor:'SGI 서울보증보험 · 국방부 협약', housing:['무주택','1주택'], needMilitary:true,
+    incomeMax:null, assetMax:null, depositMax:null, ratio:()=>1, cap:()=>3*E, incomeMult:null,
+    alwaysWarn:['한도 3억원·보증금 100%는 2026.7 비교표에서 칸 배치가 불분명해 확정하지 못한 값입니다. 영업점 확인이 필요합니다'],
+    notes:['국방부 전세대출 추천을 받은 군인 대상, 보증금 제한 없음(2026.7 비교표)','징구서류 목록표에는 신규·연장 시트가 있음'] },
   { id:'seoulNewlywed', name:'서울시 신혼부부 임차보증금 이자지원 대출', guarantor:'HF 연계 · 서울시 협약(하나은행 취급)', housing:['무주택'], marital:['신혼부부','예비신혼'], needSeoul:true,
     incomeMax:()=>1.3*E, assetMax:null, depositMax:()=>7*E, ratio:()=>0.9, cap:()=>3*E, incomeMult:null,
     notes:['서울시 관내 임차보증금 7억원 이하 주택·주거용 오피스텔, 서울 거주(또는 대출 후 1개월 이내 전입)','혼인신고 7년 이내 또는 추천서 신청일부터 6개월 이내 결혼식 예정(도구의 예비신혼 선택은 3개월 기준이라 확인 필요), 부부합산 소득 1.3억원 이하, 본인·배우자 무주택','한도 최대 3억원(보증금 90% 이내), 실제 가능액은 보증서 발급 가능액 이내라 협약은행 사전 상담 필요','이자지원금리(소득 구간별): 3천만원 이하 3.0%, 6천만원 이하 2.5%, 9천만원 이하 2.0%, 1.1억원 이하 1.5%, 1.3억원 이하 1.0%, 추가 지원 최대 1.5%(예비신혼 0.2%, 다자녀, 만 65세 이상 직계존속 동거, 중복 불가)','지원기간 최장 12년(기본 2년+2년, 자녀 증가 시 4년씩 2회 연장), 취급은행 KB·하나·신한, 서울시 추천서 필요','서울시 공고 기준(2026.03.24 수정), 이자지원 내용은 한도 계산에 반영하지 않음'] },
@@ -370,6 +403,8 @@ const TYPES = {
   newlywedFund: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'ok', 미등기:UNREG_HF },
   youthFund: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'ok', 미등기:UNREG_HF },
   daduengi: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:SENIOR, 미등기:'ok' },
+  fixedRate: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:SENIOR, 미등기:'ok' },
+  military: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'warn:취급 가능 여부를 영업점에서 확인해야 합니다', 미등기:'warn:취급 가능 여부를 영업점에서 확인해야 합니다' },
   seoulNewlywed: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'ok', 미등기:'warn:미등기 주택은 서울시 협약 대출 취급 가능 여부를 협약은행에 확인해야 합니다' },
   seoulYouth: { 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:'ok', 미등기:'warn:미등기 주택은 서울시 협약 대출 취급 가능 여부를 협약은행에 확인해야 합니다' },
   newlywed:{ 아파트:'ok', 연립다세대:'ok', 오피스텔:'ok', 단독다가구:SENIOR, 미등기:'ok' },
@@ -388,7 +423,17 @@ const man = v => {
 const eok = man;
 
 function evaluate(inp){
-  if (inp.marital==='미혼') inp = Object.assign({}, inp, { ownIncome: inp.income }); // 미혼은 본인 연소득이 곧 소득 기준
+  inp = Object.assign({}, inp);
+  if (inp.marital==='미혼') inp.ownIncome = inp.income; // 미혼은 본인 연소득이 곧 소득 기준
+  const ref = inp.refDate ? parseYmd(inp.refDate) : null;
+  if (ref && inp.marriageDate && inp.marital==='신혼부부') { // 혼인신고일 기준 7년 이내 (7주년 당일까지)
+    const m = parseYmd(inp.marriageDate);
+    if (m) { const yrs = calcAge(m, ref); if (yrs !== null && !(yrs < 7 || (yrs === 7 && ref.m === m.m && ref.d === m.d))) { inp.marital = '일반'; inp.marriageExpired = yrs; } }
+  }
+  if (ref && inp.childBirth) { // 가장 어린 자녀의 출생·입양일이 기준일로부터 2년 미만이면 출산·입양 해당
+    const c = parseYmd(inp.childBirth);
+    if (c) { const ya = calcAge(c, ref); inp.newborn = (ya !== null && ya < 2) ? '예' : '아니오'; }
+  }
   return PRODUCTS.map(p=>{
     const why1=[], why2=[], why3=[], why4=[], warns=[];
     if (inp.housing==='2주택이상') why1.push('다주택자는 보증서 발급 불가');
@@ -398,9 +443,16 @@ function evaluate(inp){
     if (p.minChildren && !(inp.children>=p.minChildren)) why2.push('미성년 자녀 '+p.minChildren+'명 이상 가구만 가능');
     if (p.ageRange) {
       if (!(inp.age>0)) warns.push('신청인 만 나이를 입력하면 연령 요건('+p.ageNote+')을 판정합니다');
-      else if (inp.age<p.ageRange[0]||inp.age>p.ageRange[1]) why2.push(p.ageNote+'만 가능 (입력 만 '+inp.age+'세)');
+      else {
+        let maxAge = p.ageRange[1];
+        if (p.serviceExtend && inp.serviceMonths>0) maxAge = Math.min(p.serviceExtend, p.ageRange[1] + Math.floor(inp.serviceMonths/12));
+        if (inp.age<p.ageRange[0]||inp.age>maxAge) why2.push(p.ageNote+'만 가능 (입력 만 '+inp.age+'세'+(maxAge>p.ageRange[1]?', 병역 이행 '+inp.serviceMonths+'개월 반영 시 만 '+maxAge+'세까지':'')+')');
+      }
     }
-    if (p.marital && !p.marital.includes(inp.marital)) why2.push(p.marital.includes('신혼부부')&&p.marital.length===2?'신혼부부(혼인 7년 이내) 또는 예비신혼만 가능':'혼인 상태 요건 미충족');
+    if (p.marital && !p.marital.includes(inp.marital)) why2.push(inp.marriageExpired!=null && p.marital.includes('신혼부부') ? `혼인신고일로부터 7년 이내만 가능 (경과 ${inp.marriageExpired}년)` : (p.marital.includes('신혼부부')&&p.marital.length===2?'신혼부부(혼인 7년 이내) 또는 예비신혼만 가능':'혼인 상태 요건 미충족'));
+    if (p.needMilitary && inp.military!=='예') why2.push('국방부 전세대출 추천을 받은 군인만 가능');
+    if (p.needEmployed && inp.emp1y==='아니오') why2.push('재직기간 1년 이상 근로소득자 필요 (하나은행 공시 2020년 기준)');
+    (p.alwaysWarn||[]).forEach(w=>warns.push(w));
     const im = p.incomeMax ? p.incomeMax(inp) : null;
     if (im!=null && inp.income>im) why3.push(`연소득 ${man(im)} 이하만 가능 (입력 ${man(inp.income)})`);
     if (p.assetMax!=null && inp.assets>p.assetMax) why3.push(`순자산 ${man(p.assetMax)} 이하만 가능 (입력 ${man(inp.assets)})`);
@@ -413,11 +465,11 @@ function evaluate(inp){
       if (inp.ownIncome>0) { if (inp.ownIncome>p.ownIncomeMax) why3.push(`신청인 본인 연소득 ${man(p.ownIncomeMax)} 이하만 가능 (입력 ${man(inp.ownIncome)})`); }
       else warns.push(`신청인 본인 연소득(${man(p.ownIncomeMax)} 이하)을 입력하면 판정합니다`);
     }
-    if (AREA_LIMIT[p.id]) { const lim=inp.eupmyeon==='예'?100:85; if (inp.area>lim) why5.push(`전용면적 ${lim}㎡ 이하만 가능 (입력 ${inp.area}㎡)`); }
+    if (AREA_LIMIT[p.id]) { let lim=inp.eupmyeon==='예'?100:85; if (p.id==='youthFund' && inp.soloHead==='예') lim=60; if (inp.area>lim) why5.push(`전용면적 ${lim}㎡ 이하만 가능 (입력 ${inp.area}㎡)`); }
     if (inp.houseType==='오피스텔' && inp.residential==='아니오') why5.push('주거용으로 전입신고가 불가능한 오피스텔은 전세대출 불가');
     const tv = (TYPES[p.id]||{})[inp.houseType]||'ok';
     if (tv.startsWith('no:')) why5.push(tv.slice(3)); else if (tv.startsWith('warn:')) warns.push(tv.slice(5));
-    if (inp.housing==='1주택' && inp.region==='수도권' && ['hfjs','anshim','sgi'].includes(p.id)) warns.push('수도권 1주택자는 DSR 40% 이내 심사가 필요합니다(기존 채무 정보는 반영하지 않음)');
+    if (inp.housing==='1주택' && inp.region==='수도권' && post1029(inp) && ['hfjs','anshim','sgi'].includes(p.id)) warns.push('수도권 1주택자는 DSR 40% 이내 심사가 필요합니다(기존 채무 정보는 반영하지 않음)');
     if (inp.restricted==='예' && ['newlywed','daduengi','hfjs','anshim','sgi'].includes(p.id)) why1.push('투기지역·투기과열지구 소재 시가 3억원 초과 아파트 보유자는 취급 불가(지정 이전 취득은 가능)');
     const reasons=[...why1,...why2,...why3,...why4,...why5];
     const ratio=p.ratio(inp), byDeposit=Math.floor(inp.deposit*ratio), cap=Math.round(p.cap(inp)); // 소수 오차(4.44*10000 등) 제거
@@ -438,6 +490,7 @@ function evaluate(inp){
       } else warns.push('주택 기준가격(시세 또는 공시가격)을 입력하면 담보 한도를 계산합니다. 입력 전에는 보증금·상품 한도 기준으로만 표시됩니다');
     }
     if (inp.houseType==='단독다가구' && tv.startsWith('warn:') && !(inp.senior>0)) warns.push('선순위 타 임차보증금 합계가 입력되지 않았습니다');
+    if (inp.renewal==='갱신' && reasons.length===0) warns.push('갱신 계약은 증액금액 기준으로 한도를 산정하는 등 신규와 달라 이 도구의 한도(신규 기준)와 다를 수 있습니다');
     const bind = parts.reduce((a,b)=>b[1]<a[1]?b:a);
     return { id:p.id, name:p.name, guarantor:p.guarantor, eligible:reasons.length===0, warns, reasons, notes:p.notes, calcNotes,
       limit:bind[1], bindLabel:bind[0], calc:parts.map(x=>x[0]+' '+eok(x[1])).join(' · ') };
@@ -485,6 +538,7 @@ if (typeof document !== 'undefined') {
     document.querySelector('label[for="annualIncome"]').textContent = single ? '본인 연소득 (만원)' : '부부합산 연소득 (만원)';
     document.querySelector('label[for="netAssets"]').textContent = single ? '본인 순자산 (만원)' : '부부합산 순자산 (만원)';
     $('f-ownIncome').hidden = single;
+    $('f-marriage').hidden = $('maritalStatus').value !== '신혼부부';
   };
   $('maritalStatus').addEventListener('change', () => {
     syncMarital();
@@ -493,7 +547,7 @@ if (typeof document !== 'undefined') {
   syncMarital();
   $('houseType').addEventListener('change', syncResid); $('housingStatus').addEventListener('change', syncResid); $('region').addEventListener('change', syncResid); syncResid();
   const todayStr = () => { const t = new Date(); return t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); };
-  $('refDate').value = todayStr();
+  $('refDate').value = todayStr(); $('contractDate').value = todayStr();
   const updateAge = () => {
     const out = $('ageOut'), bs = $('birth').value.trim();
     if (!bs) { out.textContent = ''; return; }
@@ -519,23 +573,32 @@ if (typeof document !== 'undefined') {
     if ([income,assets,deposit,area].includes(null) || (refPrice===null&&$('refPrice').value.trim()!=='') || (senior===null&&$('seniorDebt').value.trim()!=='')) return;
     const ownIncome=num('ownIncome','본인 연소득',{min:0,required:false});
     if (ownIncome===null&&$('ownIncome').value.trim()!=='') return;
-    let ageVal=0, refStr='';
+    const serviceMonths=num('serviceMonths','병역 이행 기간',{min:0,required:false});
+    if (serviceMonths===null&&$('serviceMonths').value.trim()!=='') return;
+    let ageVal=0;
+    ['e-birth','e-refDate','e-contractDate','e-marriageDate','e-childBirth'].forEach(id=>{ $(id).textContent=''; });
+    const rr=parseYmd($('refDate').value.trim()||todayStr());
+    if (!rr) { $('e-refDate').textContent='기준일 형식을 확인하세요 (예: 2026-11-02)'; return; }
+    const refStr=rr.iso;
     const birthStr=$('birth').value.trim();
-    $('e-birth').textContent=''; $('e-refDate').textContent='';
     if (birthStr) {
-      const b=parseYmd(birthStr), r=parseYmd($('refDate').value.trim()||todayStr());
+      const b=parseYmd(birthStr);
       if (!b) { $('e-birth').textContent='생년월일 형식을 확인하세요 (예: 1992-03-15)'; return; }
-      if (!r) { $('e-refDate').textContent='기준일 형식을 확인하세요 (예: 2026-11-02)'; return; }
-      const a=calcAge(b,r);
+      const a=calcAge(b,rr);
       if (a===null || a>120) { $('e-birth').textContent='생년월일이 기준일보다 늦거나 범위를 벗어났습니다'; return; }
-      ageVal=a; refStr=r.iso;
+      ageVal=a;
     }
+    const optDate=(id,err)=>{ const s=$(id).value.trim(); if (!s) return ''; const d=parseYmd(s); if (!d) { $(err).textContent='날짜 형식을 확인하세요 (예: 2026-11-02)'; return null; } return d.iso; };
+    const contractDate=optDate('contractDate','e-contractDate'), marriageDate=optDate('marriageDate','e-marriageDate'), childBirth=optDate('childBirth','e-childBirth');
+    if (contractDate===null||marriageDate===null||childBirth===null) return;
     const priceType=$('priceType').value;
     if (refPrice>0 && !priceType) { $('e-refPrice').textContent='기준가격 종류를 선택하세요'; $('refPrice').setAttribute('aria-invalid','true'); return; }
     const inp={ housing:$('housingStatus').value, marital:$('maritalStatus').value, newborn:$('newbornStatus').value, region:$('region').value, income, assets, deposit,
       houseType:$('houseType').value, area, eupmyeon:$('eupmyeon').value, residential:$('residential').value, refPrice:refPrice||0, priceType, senior:senior||0,
-      children:Number($('children').value), age:ageVal, refDate:refStr, ownIncome:ownIncome||0, seoul:$('region').value==='수도권'?$('seoul').value:'아니오', allHomeless:$('allHomeless').value,
+      children:Number($('children').value), age:ageVal, refDate:refStr, contractDate:contractDate, renewal:$('renewal').value, marriageDate:marriageDate, childBirth:childBirth,
+      soloHead:$('soloHead').value, serviceMonths:serviceMonths||0, emp1y:$('emp1y').value, military:$('military').value, ownIncome:ownIncome||0, seoul:$('region').value==='수도권'?$('seoul').value:'아니오', allHomeless:$('allHomeless').value,
       youth:$('youth').value, restricted:$('housingStatus').value==='1주택'?$('restricted').value:'아니오' };
+    docMode = inp.renewal==='갱신' ? 'ext' : 'new'; // 갱신이면 징구서류는 연장 목록부터
     const res=evaluate(inp).sort((a,b)=>(b.eligible-a.eligible)||(b.limit-a.limit));
     const name=$('custName').value.trim()||'손님';
     const ok=res.filter(r=>r.eligible), sum=$('summary'); sum.textContent='';
@@ -584,7 +647,11 @@ if (typeof document !== 'undefined') {
   let lastText='';
   const sheetData = (inp,res,name) => {
     const info=[['주택 보유 수',inp.housing],['혼인 상태',inp.marital],['2년 이내 출산·입양',inp.newborn],[inp.marital==='미혼'?'본인 연소득':'부부합산 연소득',man(inp.income)],[inp.marital==='미혼'?'본인 순자산':'부부합산 순자산',man(inp.assets)],['임차주택 소재지',inp.region],['임차 보증금',man(inp.deposit)],['주택 유형',`${inp.houseType} / ${inp.area}㎡${inp.eupmyeon==='예'?' (읍·면)':''}`]];
+    info.push(['계약 구분', inp.renewal + (inp.contractDate ? ' · 계약 체결일 ' + inp.contractDate : '')]);
     info.push(['미성년 자녀 수', inp.children+'명']);
+    if (inp.soloHead==='예') info.push(['만 25세 미만 단독세대주','예']);
+    if (inp.serviceMonths) info.push(['병역 이행 기간', inp.serviceMonths+'개월']);
+    if (inp.military==='예') info.push(['국방부 전세대출 추천 군인','예']);
     if (inp.age) info.push(['신청인 만 나이', inp.age+'세' + (inp.refDate ? ' (기준일 '+inp.refDate+')' : '')]); // 생년월일은 결과지·복사 텍스트에 넣지 않음
     if (inp.ownIncome) info.push(['신청인 본인 연소득', man(inp.ownIncome)]);
     if (inp.seoul==='예') info.push(['서울시 소재 주택','예']);

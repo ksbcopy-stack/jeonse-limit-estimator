@@ -153,8 +153,10 @@ details ul{color:var(--muted);font-size:14px;padding-left:18px}
         <input type="text" id="jeonseDeposit" value="40,000" data-money inputmode="numeric" autocomplete="off"><p class="err" id="e-jeonseDeposit"></p></div>
       <div class="field"><label for="children">미성년 자녀 수</label>
         <select id="children"><option value="0">없음</option><option value="1" selected>1명</option><option value="2">2명</option><option value="3">3명 이상</option></select><p class="hint">일반 버팀목의 2자녀 완화, 다둥이전세론에 사용합니다.</p></div>
-      <div class="field"><label for="age">신청인 만 나이 (선택)</label>
-        <input type="text" id="age" inputmode="numeric" autocomplete="off" placeholder="예: 32"><p class="err" id="e-age"></p><p class="hint">청년전용 버팀목, 서울시 청년 대출의 연령 요건 판정에 사용합니다.</p></div>
+      <div class="field"><label for="birth">신청인 생년월일 (선택)</label>
+        <input type="text" id="birth" inputmode="numeric" autocomplete="off" placeholder="예: 1992-03-15 또는 19920315"><p class="err" id="e-birth"></p><p class="hint" id="ageOut" aria-live="polite"></p><p class="hint">청년전용 버팀목, 서울시 청년 대출의 연령 요건 판정에 사용합니다. 결과지와 복사 텍스트에는 생년월일 없이 만 나이만 표시됩니다.</p></div>
+      <div class="field"><label for="refDate">연령 기준일</label>
+        <input type="text" id="refDate" inputmode="numeric" autocomplete="off" placeholder="예: 2026-11-02"><p class="err" id="e-refDate"></p><p class="hint">기본은 오늘입니다. 대출 접수일이나 잔금일로 바꾸면 그 시점의 만 나이로 판정합니다.</p></div>
       <div class="field"><label for="ownIncome">신청인 본인 연소득 (만원, 선택)</label>
         <input type="text" id="ownIncome" data-money inputmode="numeric" autocomplete="off" placeholder="예: 4,500"><p class="err" id="e-ownIncome"></p><p class="hint">서울시 청년 대출, 신혼부부전용 버팀목의 소득 특례 판정에 사용합니다.</p></div>
       <div class="field" id="f-seoul"><label for="seoul">서울시 소재 주택</label>
@@ -402,6 +404,25 @@ function evaluate(inp){
   });
 }
 
+// 생년월일 → 만 나이 (기준일 시점). 2월 29일생은 평년에 3월 1일을 생일로 봅니다.
+function parseYmd(str){
+  const m = String(str).trim().match(/^(\d{4})[-./]?(\d{1,2})[-./]?(\d{1,2})$/);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (y < 1900 || y > 2200 || mo < 1 || mo > 12 || d < 1) return null;
+  const dt = new Date(y, mo - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+  return { y: y, m: mo, d: d, iso: y + '-' + ('0' + mo).slice(-2) + '-' + ('0' + d).slice(-2) };
+}
+function calcAge(b, r){
+  const leap = r.y % 4 === 0 && (r.y % 100 !== 0 || r.y % 400 === 0);
+  let bm = b.m, bd = b.d;
+  if (bm === 2 && bd === 29 && !leap) { bm = 3; bd = 1; }
+  const before = r.m < bm || (r.m === bm && r.d < bd);
+  const age = r.y - b.y - (before ? 1 : 0);
+  return age < 0 ? null : age;
+}
+
 function stamp(loan){ return loan>=E*10 ? '15만원' : loan>=E*5 ? '7만원' : '없음'; }
 
 // 화면 연결
@@ -419,7 +440,19 @@ if (typeof document !== 'undefined') {
   };
   const syncResid = () => { $('f-resid').hidden = $('houseType').value !== '오피스텔'; $('f-restricted').hidden = $('housingStatus').value !== '1주택'; $('f-seoul').hidden = $('region').value !== '수도권'; };
   $('houseType').addEventListener('change', syncResid); $('housingStatus').addEventListener('change', syncResid); $('region').addEventListener('change', syncResid); syncResid();
-  $('asOf').textContent = `기준일 ${META.asOf} · ${META.verified ? '원문 대조 완료.' : '원문 대조 전, 확인 필요.'}`;
+  const todayStr = () => { const t = new Date(); return t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); };
+  $('refDate').value = todayStr();
+  const updateAge = () => {
+    const out = $('ageOut'), bs = $('birth').value.trim();
+    if (!bs) { out.textContent = ''; return; }
+    const b = parseYmd(bs), r = parseYmd($('refDate').value.trim() || todayStr());
+    if (!b) { out.textContent = '생년월일 형식을 확인하세요 (예: 1992-03-15)'; return; }
+    if (!r) { out.textContent = '기준일 형식을 확인하세요 (예: 2026-11-02)'; return; }
+    const a = calcAge(b, r);
+    out.textContent = (a === null || a > 120) ? '생년월일이 기준일보다 늦거나 범위를 벗어났습니다' : '만 ' + a + '세 (기준일 ' + r.iso + ')';
+  };
+  $('birth').addEventListener('input', updateAge); $('refDate').addEventListener('input', updateAge);
+  $('asOf').textContent =`기준일 ${META.asOf} · ${META.verified ? '원문 대조 완료.' : '원문 대조 전, 확인 필요.'}`;
   const mb=$('metaBox'), ms=el('ul'); META.sources.forEach(t=>ms.append(el('li',null,t)));
   const mc=el('ul'); META.changelog.forEach(([d,t])=>mc.append(el('li',null,`[${d}] ${t}`)));
   mb.append(el('h4',null,'참고한 자료'), ms, el('h4',null,'변경 이력'), mc);
@@ -432,13 +465,24 @@ if (typeof document !== 'undefined') {
     const income=num('annualIncome','연소득',{min:0}), assets=num('netAssets','순자산'), deposit=num('jeonseDeposit','보증금',{min:1}), area=num('area','전용면적',{min:1});
     const refPrice=num('refPrice','기준가격',{min:0,required:false}), senior=num('seniorDebt','선순위 채권',{min:0,required:false});
     if ([income,assets,deposit,area].includes(null) || (refPrice===null&&$('refPrice').value.trim()!=='') || (senior===null&&$('seniorDebt').value.trim()!=='')) return;
-    const age=num('age','나이',{min:0,required:false}), ownIncome=num('ownIncome','본인 연소득',{min:0,required:false});
-    if ((age===null&&$('age').value.trim()!=='') || (ownIncome===null&&$('ownIncome').value.trim()!=='')) return;
+    const ownIncome=num('ownIncome','본인 연소득',{min:0,required:false});
+    if (ownIncome===null&&$('ownIncome').value.trim()!=='') return;
+    let ageVal=0, refStr='';
+    const birthStr=$('birth').value.trim();
+    $('e-birth').textContent=''; $('e-refDate').textContent='';
+    if (birthStr) {
+      const b=parseYmd(birthStr), r=parseYmd($('refDate').value.trim()||todayStr());
+      if (!b) { $('e-birth').textContent='생년월일 형식을 확인하세요 (예: 1992-03-15)'; return; }
+      if (!r) { $('e-refDate').textContent='기준일 형식을 확인하세요 (예: 2026-11-02)'; return; }
+      const a=calcAge(b,r);
+      if (a===null || a>120) { $('e-birth').textContent='생년월일이 기준일보다 늦거나 범위를 벗어났습니다'; return; }
+      ageVal=a; refStr=r.iso;
+    }
     const priceType=$('priceType').value;
     if (refPrice>0 && !priceType) { $('e-refPrice').textContent='기준가격 종류를 선택하세요'; $('refPrice').setAttribute('aria-invalid','true'); return; }
     const inp={ housing:$('housingStatus').value, marital:$('maritalStatus').value, newborn:$('newbornStatus').value, region:$('region').value, income, assets, deposit,
       houseType:$('houseType').value, area, eupmyeon:$('eupmyeon').value, residential:$('residential').value, refPrice:refPrice||0, priceType, senior:senior||0,
-      children:Number($('children').value), age:age||0, ownIncome:ownIncome||0, seoul:$('region').value==='수도권'?$('seoul').value:'아니오', allHomeless:$('allHomeless').value,
+      children:Number($('children').value), age:ageVal, refDate:refStr, ownIncome:ownIncome||0, seoul:$('region').value==='수도권'?$('seoul').value:'아니오', allHomeless:$('allHomeless').value,
       youth:$('youth').value, restricted:$('housingStatus').value==='1주택'?$('restricted').value:'아니오' };
     const res=evaluate(inp).sort((a,b)=>(b.eligible-a.eligible)||(b.limit-a.limit));
     const name=$('custName').value.trim()||'손님';
@@ -489,7 +533,7 @@ if (typeof document !== 'undefined') {
   const sheetData = (inp,res,name) => {
     const info=[['주택 보유 수',inp.housing],['혼인 상태',inp.marital],['2년 이내 출산·입양',inp.newborn],['부부합산 연소득',man(inp.income)],['부부합산 순자산',man(inp.assets)],['임차주택 소재지',inp.region],['임차 보증금',man(inp.deposit)],['주택 유형',`${inp.houseType} / ${inp.area}㎡${inp.eupmyeon==='예'?' (읍·면)':''}`]];
     info.push(['미성년 자녀 수', inp.children+'명']);
-    if (inp.age) info.push(['신청인 만 나이', inp.age+'세']);
+    if (inp.age) info.push(['신청인 만 나이', inp.age+'세' + (inp.refDate ? ' (기준일 '+inp.refDate+')' : '')]); // 생년월일은 결과지·복사 텍스트에 넣지 않음
     if (inp.ownIncome) info.push(['신청인 본인 연소득', man(inp.ownIncome)]);
     if (inp.seoul==='예') info.push(['서울시 소재 주택','예']);
     if (inp.allHomeless==='아니오') info.push(['세대원 전원 무주택','아니오']);

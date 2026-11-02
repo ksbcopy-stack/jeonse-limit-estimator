@@ -79,6 +79,14 @@ button.go:hover{filter:brightness(1.06)}
 .sbtn[aria-pressed="true"]{background:var(--teal);color:var(--on-teal)}
 @supports not (display:contents){.dtop>*+*{margin-left:10px}}
 @media print{.sheet td{font-size:11px}}
+.helpbox{margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-size:13.5px;line-height:1.55}
+.helpbox summary{cursor:pointer;padding:9px 12px;font-family:var(--font-m);color:var(--teal);min-height:40px}
+.helpbox summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:8px}
+.helpbox .hbody{padding:0 12px 10px}
+.helpbox .hbody p{margin:8px 0 2px}
+.helpbox ul{margin:2px 0 6px;padding-left:18px}
+.helpbox code{background:var(--teal-soft);padding:0 5px;border-radius:4px}
+.formula2{background:var(--teal-soft);border-radius:8px;padding:7px 10px;font-family:var(--font-m);overflow-wrap:anywhere}
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 6px}
 .toolbar .hint{margin:0;flex:1 1 280px}
 .sbtn{font-family:var(--font-m);font-size:14px;background:var(--surface);color:var(--teal);border:1.5px solid var(--teal);border-radius:8px;min-height:40px;padding:0 14px;cursor:pointer}
@@ -146,7 +154,38 @@ details ul{color:var(--muted);font-size:14px;padding-left:18px}
       <div class="field"><label for="annualIncome">부부합산 연소득 (만원)</label>
         <input type="text" id="annualIncome" value="6,000" data-money inputmode="numeric" autocomplete="off"><p class="err" id="e-annualIncome"></p></div>
       <div class="field"><label for="netAssets">부부합산 순자산 (만원)</label>
-        <input type="text" id="netAssets" value="30,000" data-money inputmode="numeric" autocomplete="off"><p class="err" id="e-netAssets"></p></div>
+        <input type="text" id="netAssets" value="30,000" data-money inputmode="numeric" autocomplete="off"><p class="err" id="e-netAssets"></p>
+        <details class="helpbox"><summary>순자산 산정 방법 보기</summary>
+          <div class="hbody">
+            <p><b>산식</b> (주택도시기금 자산심사 기준)</p>
+            <p class="formula2">순자산 = (부동산 + 일반자산 + 자동차 + 금융자산) − (금융부채 + 일반부채)</p>
+            <ul>
+              <li><b>합산 대상:</b> 대출신청인과 배우자. 미혼이면 본인만 계산합니다.</li>
+              <li><b>기준금액:</b> 전월세자금 3.45억원 이하(2026년도). 통계청 가계금융복지조사 결과에 따라 매년 바뀝니다.</li>
+              <li><b>이 도구에서 쓰는 곳:</b> 주택도시기금 버팀목 계열 4개 상품(신생아 특례, 일반, 신혼부부전용, 청년전용)의 상한 판정. 그 밖의 상품에는 순자산 상한이 없습니다.</li>
+            </ul>
+            <p><b>항목별 평가 기준</b></p>
+            <ul>
+              <li><b>부동산(토지·건축물):</b> 지방세법상 시가표준액. 시가표준액이 없으면 취득세 신고금액</li>
+              <li><b>자동차:</b> 시가표준액</li>
+              <li><b>임차보증금:</b> 임대차계약서상 보증금</li>
+              <li><b>분양권·조합입주권:</b> 조회기준일까지 납입한 금액</li>
+              <li><b>금융자산·금융부채:</b> 사회보장정보원 조회 금액. 부정수급 방지를 위해 대출접수일 기준 과거 3개월 시점으로 조회</li>
+              <li><b>비금융자산·일반부채:</b> 대출접수일 기준</li>
+            </ul>
+            <p><b>입력 방법</b></p>
+            <ul>
+              <li>수탁은행의 <b>자산심사 조회 결과가 있으면 그 순자산 값을 그대로</b> 입력하세요. 손님이 기억하는 금액과 다를 수 있습니다.</li>
+              <li>조회 결과가 없으면 위 항목을 대략 합산해 입력하고, 3.45억원에 가까우면 심사 결과를 확인하세요.</li>
+              <li>단위는 만원입니다. 부채가 더 많으면 숫자 앞에 <code>-</code>를 붙입니다.</li>
+            </ul>
+            <p><b>알아둘 점</b></p>
+            <ul>
+              <li>사전 심사 후 대출 실행 뒤에도 사후 심사를 하며, 기준을 넘는 것으로 확정되면 초과 금액에 따라 가산금리가 붙습니다.</li>
+              <li>세부 평가 방법은 바뀔 수 있으므로 실제 평가는 기금 수탁은행에서 확인하세요. (출처: 주택도시기금 자산 심사 안내, nhuf.molit.go.kr)</li>
+            </ul>
+          </div>
+        </details></div>
       <div class="field"><label for="region">임차주택 소재지</label>
         <select id="region"><option value="수도권" selected>수도권 (서울·경기·인천)</option><option value="지방">지방</option></select></div>
       <div class="field"><label for="jeonseDeposit">임차 보증금 (만원)</label>
@@ -157,7 +196,7 @@ details ul{color:var(--muted);font-size:14px;padding-left:18px}
         <input type="text" id="birth" inputmode="numeric" autocomplete="off" placeholder="예: 1992-03-15 또는 19920315"><p class="err" id="e-birth"></p><p class="hint" id="ageOut" aria-live="polite"></p><p class="hint">청년전용 버팀목, 서울시 청년 대출의 연령 요건 판정에 사용합니다. 결과지와 복사 텍스트에는 생년월일 없이 만 나이만 표시됩니다.</p></div>
       <div class="field"><label for="refDate">연령 기준일</label>
         <input type="text" id="refDate" inputmode="numeric" autocomplete="off" placeholder="예: 2026-11-02"><p class="err" id="e-refDate"></p><p class="hint">기본은 오늘입니다. 대출 접수일이나 잔금일로 바꾸면 그 시점의 만 나이로 판정합니다.</p></div>
-      <div class="field"><label for="ownIncome">신청인 본인 연소득 (만원, 선택)</label>
+      <div class="field" id="f-ownIncome"><label for="ownIncome">신청인 본인 연소득 (만원, 선택)</label>
         <input type="text" id="ownIncome" data-money inputmode="numeric" autocomplete="off" placeholder="예: 4,500"><p class="err" id="e-ownIncome"></p><p class="hint">서울시 청년 대출, 신혼부부전용 버팀목의 소득 특례 판정에 사용합니다.</p></div>
       <div class="field" id="f-seoul"><label for="seoul">서울시 소재 주택</label>
         <select id="seoul"><option value="아니오" selected>아니오</option><option value="예">예 (서울시 관내)</option></select><p class="hint">수도권을 선택했을 때 확인합니다. 서울시 협약 대출에 사용합니다.</p></div>
@@ -349,6 +388,7 @@ const man = v => {
 const eok = man;
 
 function evaluate(inp){
+  if (inp.marital==='미혼') inp = Object.assign({}, inp, { ownIncome: inp.income }); // 미혼은 본인 연소득이 곧 소득 기준
   return PRODUCTS.map(p=>{
     const why1=[], why2=[], why3=[], why4=[], warns=[];
     if (inp.housing==='2주택이상') why1.push('다주택자는 보증서 발급 불가');
@@ -439,6 +479,18 @@ if (typeof document !== 'undefined') {
     return msg?null:v;
   };
   const syncResid = () => { $('f-resid').hidden = $('houseType').value !== '오피스텔'; $('f-restricted').hidden = $('housingStatus').value !== '1주택'; $('f-seoul').hidden = $('region').value !== '수도권'; };
+  // 혼인 상태가 미혼이면 '부부합산'을 '본인'으로 바꾸고, 신청인 본인 연소득 칸은 숨김(본인 연소득과 같은 값으로 처리)
+  const syncMarital = () => {
+    const single = $('maritalStatus').value === '미혼';
+    document.querySelector('label[for="annualIncome"]').textContent = single ? '본인 연소득 (만원)' : '부부합산 연소득 (만원)';
+    document.querySelector('label[for="netAssets"]').textContent = single ? '본인 순자산 (만원)' : '부부합산 순자산 (만원)';
+    $('f-ownIncome').hidden = single;
+  };
+  $('maritalStatus').addEventListener('change', () => {
+    syncMarital();
+    if ($('maritalStatus').value === '미혼') { $('children').value = '0'; $('newbornStatus').value = '아니오'; } // 한부모·입양 가구는 직접 바꿀 수 있음
+  });
+  syncMarital();
   $('houseType').addEventListener('change', syncResid); $('housingStatus').addEventListener('change', syncResid); $('region').addEventListener('change', syncResid); syncResid();
   const todayStr = () => { const t = new Date(); return t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); };
   $('refDate').value = todayStr();
@@ -531,7 +583,7 @@ if (typeof document !== 'undefined') {
   const DISCLAIMER='본 판정 결과는 입력하신 기초 정보(소득, 자산, 주택수 등)를 바탕으로 계산된 예상 결과입니다. 실제 대출 가능 여부, 최종 한도와 금리는 임차목적물의 권리침해 여부(근저당 설정 등), 건물 시세 감정, 개인신용평점(CSS), 보증기관(HF·HUG·SGI)의 최종 승인 결과에 따라 달라질 수 있습니다.';
   let lastText='';
   const sheetData = (inp,res,name) => {
-    const info=[['주택 보유 수',inp.housing],['혼인 상태',inp.marital],['2년 이내 출산·입양',inp.newborn],['부부합산 연소득',man(inp.income)],['부부합산 순자산',man(inp.assets)],['임차주택 소재지',inp.region],['임차 보증금',man(inp.deposit)],['주택 유형',`${inp.houseType} / ${inp.area}㎡${inp.eupmyeon==='예'?' (읍·면)':''}`]];
+    const info=[['주택 보유 수',inp.housing],['혼인 상태',inp.marital],['2년 이내 출산·입양',inp.newborn],[inp.marital==='미혼'?'본인 연소득':'부부합산 연소득',man(inp.income)],[inp.marital==='미혼'?'본인 순자산':'부부합산 순자산',man(inp.assets)],['임차주택 소재지',inp.region],['임차 보증금',man(inp.deposit)],['주택 유형',`${inp.houseType} / ${inp.area}㎡${inp.eupmyeon==='예'?' (읍·면)':''}`]];
     info.push(['미성년 자녀 수', inp.children+'명']);
     if (inp.age) info.push(['신청인 만 나이', inp.age+'세' + (inp.refDate ? ' (기준일 '+inp.refDate+')' : '')]); // 생년월일은 결과지·복사 텍스트에 넣지 않음
     if (inp.ownIncome) info.push(['신청인 본인 연소득', man(inp.ownIncome)]);

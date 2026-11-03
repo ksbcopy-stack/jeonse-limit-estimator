@@ -247,6 +247,10 @@ details ul{color:var(--muted);font-size:14px;padding-left:18px}
         <input type="text" id="contractDate" inputmode="numeric" autocomplete="off" placeholder="예: 2026-11-02"><p class="err" id="e-contractDate"></p><p class="hint">기본은 오늘입니다. 이미 체결한 계약이면 그 날짜를 넣으세요. 버팀목 한도(25.6.27), 1주택 한도(25.9.7), 수도권 DSR 안내(25.10.29)가 계약일에 따라 달라집니다.</p></div>
       <div class="field"><label for="renewal">신규·갱신 구분</label>
         <select id="renewal"><option value="신규" selected>신규 계약</option><option value="갱신">갱신 계약</option></select><p class="hint">한도는 신규 기준으로 계산합니다. 갱신을 고르면 확인 안내가 붙고 징구서류는 연장 목록이 먼저 열립니다.</p></div>
+      <div class="field"><label for="existDebt">기존 대출 잔액 합계 (만원, 선택)</label>
+        <input type="text" id="existDebt" data-money inputmode="numeric" autocomplete="off" placeholder="없으면 비워 두세요"><p class="err" id="e-existDebt"></p><p class="hint">전세금안심·우량주택전세론의 "소득 대비 이자 40%"는 기존 대출 이자를 포함합니다. 신용대출·주택담보대출 등 이자가 나가는 대출의 잔액 합계를 입력하세요.</p></div>
+      <div class="field"><label for="existRate">기존 대출 평균 금리 (연 %, 선택)</label>
+        <input type="text" id="existRate" inputmode="decimal" autocomplete="off" placeholder="예: 5.0"><p class="err" id="e-existRate"></p><p class="hint">비워 두면 본건 금리와 같다고 가정합니다.</p></div>
       <div class="field" id="f-prev"><label for="prevDeposit">갱신 전 보증금 (만원)</label>
         <input type="text" id="prevDeposit" data-money inputmode="numeric" autocomplete="off" placeholder="예: 20,000"><p class="err" id="e-prevDeposit"></p><p class="hint">갱신 계약일 때만 표시됩니다. 주택도시기금 4개 상품은 증액금액 범위 안에서 대출합니다.</p></div>
 
@@ -570,9 +574,14 @@ function evaluate(inp){
       else if (isNH(inp) || inp.youth==='예') calcNotes.push('신혼·청년 우대 요건(신혼부부 연소득 6천만원 이하·3개월 이내 결혼예정 포함, 청년 연소득 5천만원 이하·만 19~34세)을 충족하지 못해 일반 기준(80%, 수도권 4억원·지방 3.2억원)으로 계산');
     }
     if (p.interest40) { // 연간 인정소득 대비 연 이자비용 40% 이내 (HUG 전세금안심, SGI 우량주택전세론)
-      const byInt = Math.floor(0.4 * inp.income / (rate/100));
-      parts.push([`소득 기준(이자 40%, 금리 ${rate}%${rateAssumed?' 가정':''})`, byInt]);
-      calcNotes.push(`${p.interest40}: 연소득 ${man(inp.income)} × 40% ÷ 금리 ${rate}%${rateAssumed?'(금리 미입력, 가정값)':''} = ${man(byInt)}`);
+      const exD = inp.existDebt > 0 ? inp.existDebt : 0, exAssumed = exD > 0 && !(inp.existRate > 0), exRate = exAssumed ? rate : (inp.existRate || 0);
+      const exInt = exD * exRate / 100, room = 0.4 * inp.income - exInt;
+      const byInt = Math.max(0, Math.floor(room / (rate/100)));
+      parts.push([`소득 기준(이자 40%, 금리 ${rate}%${rateAssumed?' 가정':''}${exD>0?', 기존 이자 차감':''})`, byInt]);
+      calcNotes.push(`${p.interest40}: (연소득 ${man(inp.income)} × 40%${exD>0?` − 기존 대출 연 이자 ${man(Math.round(exInt))}(잔액 ${man(exD)} × ${exRate}%${exAssumed?', 금리 미입력이라 본건 금리로 가정':''})`:''}) ÷ 금리 ${rate}%${rateAssumed?'(금리 미입력, 가정값)':''} = ${man(byInt)}`);
+      if (exD > 0 && room <= 0) reasons.push('기존 대출 연 이자만으로 연소득의 40%를 넘어 본건 이자를 부담할 여력이 없습니다');
+      if (!(exD > 0)) warns.push('기존 대출을 입력하지 않았습니다. "연간 인정소득 대비 연간 이자비용 40%"는 기존 대출 이자와 본건 이자를 합산하므로, 기존 대출이 있으면 한도가 줄어듭니다');
+      else if (exAssumed) warns.push('기존 대출 금리가 입력되지 않아 본건 금리로 가정해 이자를 계산했습니다');
     }
     if (p.id==='anshim') { // 가입 조건: 전세보증금+선순위 ≤ 주택가격×90%, 선순위 ≤ 주택가액(주택가격×90%)의 60%
       if (H) {
@@ -698,6 +707,9 @@ if (typeof document !== 'undefined') {
     if (serviceMonths===null&&$('serviceMonths').value.trim()!=='') return;
     const weddingMonthsRaw=num('weddingMonths','결혼 예정 기간',{min:0,required:false}), prevDepositRaw=num('prevDeposit','갱신 전 보증금',{min:0,required:false}), rateRaw=num('rate','금리',{min:0,required:false});
     if ((weddingMonthsRaw===null&&$('weddingMonths').value.trim()!=='') || (prevDepositRaw===null&&$('prevDeposit').value.trim()!=='') || (rateRaw===null&&$('rate').value.trim()!=='')) return;
+    const existDebtRaw=num('existDebt','기존 대출 잔액',{min:0,required:false}), existRateRaw=num('existRate','기존 대출 금리',{min:0,required:false});
+    if ((existDebtRaw===null&&$('existDebt').value.trim()!=='') || (existRateRaw===null&&$('existRate').value.trim()!=='')) return;
+    if (existRateRaw>30) { $('e-existRate').textContent='금리는 30% 이하로 입력하세요'; return; }
     if (rateRaw>20) { $('e-rate').textContent='금리는 20% 이하로 입력하세요'; return; }
     const weddingMonths=$('maritalStatus').value==='예비신혼'?(weddingMonthsRaw||0):0, prevDeposit=$('renewal').value==='갱신'?(prevDepositRaw||0):0;
     let ageVal=0;
@@ -722,7 +734,7 @@ if (typeof document !== 'undefined') {
       houseType:$('houseType').value, area, eupmyeon:$('eupmyeon').value, residential:$('residential').value, refPrice:refPrice||0, priceType, senior:senior||0,
       children:Number($('children').value), age:ageVal, refDate:refStr, contractDate:contractDate, renewal:$('renewal').value, marriageDate:marriageDate, childBirth:childBirth,
       soloHead:$('soloHead').value, serviceMonths:serviceMonths||0, smeYouth:$('smeYouth').value, fetus:Number($('fetus').value), weddingMonths:weddingMonths, relief6k:$('relief6k').value,
-      realDemand:($('housingStatus').value==='1주택'&&$('restricted').value==='예')?$('realDemand').value:'아니오', rate:rateRaw||0, prevDeposit:prevDeposit, military:$('military').value, ownIncome:ownIncome||0, seoul:$('region').value==='수도권'?$('seoul').value:'아니오', allHomeless:$('allHomeless').value,
+      realDemand:($('housingStatus').value==='1주택'&&$('restricted').value==='예')?$('realDemand').value:'아니오', rate:rateRaw||0, existDebt:existDebtRaw||0, existRate:existRateRaw||0, prevDeposit:prevDeposit, military:$('military').value, ownIncome:ownIncome||0, seoul:$('region').value==='수도권'?$('seoul').value:'아니오', allHomeless:$('allHomeless').value,
       youth:$('youth').value, restricted:$('housingStatus').value==='1주택'?$('restricted').value:'아니오' };
     docMode = inp.renewal==='갱신' ? 'ext' : 'new'; // 갱신이면 징구서류는 연장 목록부터
     const res=evaluate(inp).sort((a,b)=>(b.eligible-a.eligible)||(b.limit-a.limit));
@@ -782,6 +794,7 @@ if (typeof document !== 'undefined') {
     if (inp.relief6k==='예') info.push(['소득 6천만원 완화 대상','해당']);
     if (inp.prevDeposit) info.push(['갱신 전 보증금', man(inp.prevDeposit)]);
     if (inp.rate) info.push(['대출 금리', inp.rate+'%']);
+    if (inp.existDebt) info.push(['기존 대출 잔액', man(inp.existDebt) + (inp.existRate ? ' (평균 ' + inp.existRate + '%)' : ' (금리 미입력)')]);
     if (inp.realDemand==='예') info.push(['실수요자 예외','확인됨']);
     if (inp.military==='예') info.push(['국방부 전세대출 추천 군인','예']);
     if (inp.age) info.push(['신청인 만 나이', inp.age+'세' + (inp.refDate ? ' (기준일 '+inp.refDate+')' : '')]); // 생년월일은 결과지·복사 텍스트에 넣지 않음
